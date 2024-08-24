@@ -1,3 +1,6 @@
 Name: mediaprop
 Host: 0.0.0.0
-Port: 8888
+Port: 29801
+Juliaback:
+  server: localhost
+  port: 19801
