@@ -1,0 +1,66 @@
+syntax = "v1"
+
+info (
+	title:   "Ai4Energy 工质物性计算服务"
+	desc:    "Ai4Energy 工质物性计算服务"
+	author:  "Mingtao Li"
+	email:   "mingtao@xjtu.edu.cn"
+	version: "v1"
+)
+
+// PingResponse 定义健康检查的响应结构
+type PingResponse {
+	Message string `json:"message"` // 返回的消息内容，例如 "pong"
+	Code    int    `json:"code"` // HTTP 状态码，例如 200
+}
+
+// CoolPropPureFluidRequest 定义用于计算工质物性的请求结构
+type CoolPropPureFluidRequest {
+	Fluid           string  `json:"fluid"` // 流体的名称，例如 "Ammonia"
+	InputParameter1 string  `json:"inputparameter1"` // 输入参数1的类型，例如 "Pressure [Pa]"
+	Inputvalue1     float64 `json:"inputvalue1"` // 输入参数1的值，例如 101325
+	InputParameter2 string  `json:"inputparameter2"` // 输入参数2的类型，例如 "Temperature [K]"
+	Inputvalue2     float64 `json:"inputvalue2"` // 输入参数2的值，例如 298
+	UnitSystem      string  `json:"unitsystem"` // 输出单位系统，例如 "Mass-based"
+}
+
+// CoolPropPureFluidResponse 定义计算工质物性的响应结构
+type CoolPropPureFluidResponse {
+	Fluid        string  `json:"fluid"` // 流体名称
+	Temperature  float64 `json:"temperature"` // 温度 [K]
+	Pressure     float64 `json:"pressure"` // 压力 [Pa]
+	VaporQuality float64 `json:"vaporquality"` // 汽化质量分数
+	SpeedOfSound float64 `json:"speedofsound"` // 声速 [m/s]
+	Density      float64 `json:"density"` // 密度 [kg/m^3]
+	Enthalpy     float64 `json:"enthalpy"` // 焓 [J/kg]
+	Entropy      float64 `json:"entropy"` // 熵 [J/kg/K]
+	Cp           float64 `json:"cp"` // 定压比热 [J/kg/K]
+	Cv           float64 `json:"cv"` // 定容比热 [J/kg/K]
+	UnitSystem   string  `json:"unitsystem"` // 输出单位系统
+}
+
+// 定义不需要认证的服务
+@server (
+	timeout:  5s
+	maxBytes: 1048576
+)
+service mediaprop {
+	@doc "Ping用于健康检查"
+	@handler ping
+	get /ping returns (PingResponse) // 指定Ping返回PingResponse
+}
+
+// 定义需要认证的服务
+@server (
+	prefix:   /v1
+	group:    mediaprop
+	timeout:  5s
+	maxBytes: 1048576
+// jwt:      JwtAuth // 启用JWT认证
+)
+service mediaprop {
+	@doc "计算纯工质物性"
+	@handler calculatePureFluidProp
+	post /purefluid (CoolPropPureFluidRequest) returns (CoolPropPureFluidResponse)
+}
+
