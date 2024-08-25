@@ -9,3 +9,26 @@ services:
       - /srv/ai4energy/postgres-data:/var/lib/postgresql/data
     expose:
       - "5432"
+
+  # Julia API Service
+  ai4ejuliaapi:
+    image: ai4eems-juliaapi:latest
+    container_name: ai4eems-juliaapi
+    volumes:
+      - /srv/ai4energy/juliaapi:/app
+    expose:
+      - "29801"
+
+  # Mediaprop Service
+  mediaprop:
+    image: ai4eems-mediaprop:latest
+    container_name: ai4eems-mediaprop
+    environment:
+      - JULIA_API_HOST=ai4ejuliaapi
+      - JULIA_API_PORT=29801
+    volumes:
+      - /srv/ai4energy/mediaprop:/app
+    ports:
+      - "19805:19805"
+    depends_on:
+      - ai4ejuliaapi
