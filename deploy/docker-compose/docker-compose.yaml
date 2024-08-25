@@ -1,0 +1,11 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16.4
+    container_name: ai4eems-postgres
+    env_file:
+      - ai4eems.env
+    volumes:
+      - /srv/ai4energy/postgres-data:/var/lib/postgresql/data
+    expose:
+      - "5432"
