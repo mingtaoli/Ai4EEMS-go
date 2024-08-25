@@ -1,0 +1,49 @@
+syntax = "v1"
+
+info (
+	title:   "Ai4Energy用户中心服务"
+	desc:    "Ai4Energy用户中心服务"
+	author:  "Mingtao Li"
+	email:   "mingtao@xjtu.edu.cn"
+	version: "v1"
+)
+
+import (
+	"user/user.api"
+)
+
+//不需要登录
+@server (
+	prefix: usercenter/v1
+	group:  user
+)
+service usercenter {
+	@doc "register"
+	@handler register
+	post /user/register (RegisterReq) returns (RegisterResp)
+
+	@doc "login"
+	@handler login
+	post /user/login (LoginReq) returns (LoginResp)
+
+	@doc "oauth2 authorization"
+	@handler oauthAuthorize
+	get /user/oauth/authorize (OAuthAuthorizeReq) returns (OAuthAuthorizeResp)
+
+	@doc "oauth2 token"
+	@handler oauthToken
+	post /user/oauth/token (OAuthTokenReq) returns (OAuthTokenResp)
+}
+
+//需要登录
+@server (
+	prefix: usercenter/v1
+	group:  user
+	jwt:    JwtAuth
+)
+service usercenter {
+	@doc "get user info"
+	@handler detail
+	post /user/detail (UserInfoReq) returns (UserInfoResp)
+}
+

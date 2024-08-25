@@ -1,0 +1,38 @@
+node_modules
+.DS_Store
+dist
+.npmrc
+.cache
+
+# Tests
+tests/
+
+# Local configuration
+.local
+.env.local
+.env.*.local
+
+# Cache files
+.eslintcache
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDE settings
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Lock files - Uncomment these if you decide to include lock files in your Docker context
+# yarn.lock
+# pnpm-lock.yaml
+
+# Profiling files
+/vite-profile.cpuprofile
