@@ -1,0 +1,8 @@
+Name: usercenter
+Host: 0.0.0.0
+Port: 19801
+
+#jwtAuth
+JwtAuth:
+  AccessSecret: e90250297f3308eef544c5c81d6baf31577a1413ceed24f1807c4fe3a98372e6
+  AccessExpire: 31536000
