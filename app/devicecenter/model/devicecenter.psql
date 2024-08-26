@@ -1,0 +1,297 @@
+-- 创建主表
+CREATE TABLE manufacturer (
+    id SERIAL PRIMARY KEY NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    contact_person VARCHAR(255),
+    phone VARCHAR(32),
+    email VARCHAR(255),
+    address VARCHAR(512),
+    website VARCHAR(255),
+    region VARCHAR(255),
+    created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    remark VARCHAR(512),
+    UNIQUE (name),
+    UNIQUE (phone),
+    UNIQUE (email)
+);
+
+-- 添加注释
+COMMENT ON TABLE manufacturer IS '厂家信息表';
+COMMENT ON COLUMN manufacturer.name IS '厂家名称';
+COMMENT ON COLUMN manufacturer.contact_person IS '联系人';
+COMMENT ON COLUMN manufacturer.phone IS '联系电话';
+COMMENT ON COLUMN manufacturer.email IS '联系邮箱';
+COMMENT ON COLUMN manufacturer.address IS '公司地址';
+COMMENT ON COLUMN manufacturer.website IS '公司网站';
+COMMENT ON COLUMN manufacturer.region IS '所在地区（国家/地区/省份）';
+COMMENT ON COLUMN manufacturer.created_time IS '创建时间';
+COMMENT ON COLUMN manufacturer.updated_time IS '更新时间';
+COMMENT ON COLUMN manufacturer.remark IS '备注';
+
+
+-- 创建设备类型表
+CREATE TABLE device_type (
+    id SERIAL PRIMARY KEY NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(512)
+);
+
+-- 添加注释
+COMMENT ON TABLE device_type IS '设备类型表';
+COMMENT ON COLUMN device_type.name IS '设备类型名称';
+COMMENT ON COLUMN device_type.description IS '设备类型描述';
+
+
+-- 创建设备属性定义表
+CREATE TABLE device_attribute (
+    id SERIAL PRIMARY KEY NOT NULL,
+    device_type_id INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    data_type VARCHAR(255),
+    FOREIGN KEY (device_type_id) REFERENCES device_type(id)
+);
+
+-- 添加注释
+COMMENT ON TABLE device_attribute IS '设备属性定义表';
+COMMENT ON COLUMN device_attribute.device_type_id IS '设备类型ID';
+COMMENT ON COLUMN device_attribute.name IS '属性名称';
+COMMENT ON COLUMN device_attribute.data_type IS '属性数据类型';
+
+
+-- 创建设备实例表
+CREATE TABLE device (
+    id SERIAL PRIMARY KEY NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    device_type_id INT NOT NULL,
+    manufacturer_id INT NOT NULL,
+    status SMALLINT DEFAULT 0,
+    created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (device_type_id) REFERENCES device_type(id),
+    FOREIGN KEY (manufacturer_id) REFERENCES manufacturer(id)
+);
+
+-- 添加注释
+COMMENT ON TABLE device IS '设备实例表';
+COMMENT ON COLUMN device.name IS '设备名称';
+COMMENT ON COLUMN device.device_type_id IS '设备类型ID';
+COMMENT ON COLUMN device.manufacturer_id IS '厂家ID';
+COMMENT ON COLUMN device.status IS '设备状态';
+COMMENT ON COLUMN device.created_time IS '创建时间';
+COMMENT ON COLUMN device.updated_time IS '更新时间';
+
+
+-- 创建设备属性值表
+CREATE TABLE device_attribute_value (
+    id SERIAL PRIMARY KEY NOT NULL,
+    device_id INT NOT NULL,
+    device_attribute_id INT NOT NULL,
+    value TEXT NOT NULL,
+    FOREIGN KEY (device_id) REFERENCES device(id),
+    FOREIGN KEY (device_attribute_id) REFERENCES device_attribute(id)
+);
+
+-- 添加注释
+COMMENT ON TABLE device_attribute_value IS '设备属性值表';
+COMMENT ON COLUMN device_attribute_value.device_id IS '设备ID';
+COMMENT ON COLUMN device_attribute_value.device_attribute_id IS '属性定义ID';
+COMMENT ON COLUMN device_attribute_value.value IS '属性值';
+
+
+-- 插入设备类型
+INSERT INTO device_type (name, description) 
+VALUES ('Temperature Sensor', 'Sensors that measure temperature.');
+
+-- 插入设备属性定义
+INSERT INTO device_attribute (device_type_id, name, data_type) 
+VALUES (1, 'Temperature Range', 'VARCHAR(255)');
+
+-- 插入设备实例
+INSERT INTO device (name, device_type_id, manufacturer_id, status) 
+VALUES ('Sensor A1', 1, 1, 1);
+
+-- 插入设备属性值
+INSERT INTO device_attribute_value (device_id, device_attribute_id, value) 
+VALUES (1, 1, '-40 to 150°C');
+
+
+CREATE TABLE sensor (
+    id SERIAL PRIMARY KEY NOT NULL,
+    device_id INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    type VARCHAR(255),
+    unit VARCHAR(50),
+    description VARCHAR(512),
+    created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (device_id) REFERENCES device(id)
+);
+
+-- 添加注释
+COMMENT ON TABLE sensor IS '传感器配置表';
+COMMENT ON COLUMN sensor.device_id IS '设备ID';
+COMMENT ON COLUMN sensor.name IS '传感器名称';
+COMMENT ON COLUMN sensor.type IS '传感器类型';
+COMMENT ON COLUMN sensor.unit IS '数据单位';
+COMMENT ON COLUMN sensor.description IS '传感器描述';
+COMMENT ON COLUMN sensor.created_time IS '配置创建时间';
+COMMENT ON COLUMN sensor.updated_time IS '配置更新时间';
+
+
+CREATE TABLE sensor_real_time_data (
+    id SERIAL PRIMARY KEY NOT NULL,
+    sensor_id INT NOT NULL,
+    value FLOAT NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (sensor_id) REFERENCES sensor(id)
+);
+
+-- 添加注释
+COMMENT ON TABLE sensor_real_time_data IS '传感器实时数据表';
+COMMENT ON COLUMN sensor_real_time_data.sensor_id IS '传感器ID';
+COMMENT ON COLUMN sensor_real_time_data.value IS '实时数据值';
+COMMENT ON COLUMN sensor_real_time_data.timestamp IS '数据采集时间';
+
+
+CREATE TABLE sensor_historical_data (
+    id SERIAL PRIMARY KEY NOT NULL,
+    sensor_id INT NOT NULL,
+    value FLOAT NOT NULL,
+    timestamp TIMESTAMP NOT NULL,
+    FOREIGN KEY (sensor_id) REFERENCES sensor(id)
+);
+
+-- 添加注释
+COMMENT ON TABLE sensor_historical_data IS '传感器历史数据表';
+COMMENT ON COLUMN sensor_historical_data.sensor_id IS '传感器ID';
+COMMENT ON COLUMN sensor_historical_data.value IS '历史数据值';
+COMMENT ON COLUMN sensor_historical_data.timestamp IS '数据采集时间';
+
+
+在实际应用中，通常会有一个计划任务（cron job）或定期的后台进程，将 sensor_real_time_data 表中的旧数据（例如1个月前的数据）转移到 sensor_historical_data 表中。这可以通过如下SQL实现：
+
+-- 将一个月前的实时数据迁移到历史数据表
+INSERT INTO sensor_historical_data (sensor_id, value, timestamp)
+SELECT sensor_id, value, timestamp
+FROM sensor_real_time_data
+WHERE timestamp < NOW() - INTERVAL '1 month';
+
+-- 删除实时数据表中的旧数据
+DELETE FROM sensor_real_time_data
+WHERE timestamp < NOW() - INTERVAL '1 month';
+
+
+CREATE TABLE system (
+    id SERIAL PRIMARY KEY NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(512),
+    created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 添加注释
+COMMENT ON TABLE system IS '系统表，用于描述整体系统，如锅炉系统';
+COMMENT ON COLUMN system.name IS '系统名称';
+COMMENT ON COLUMN system.description IS '系统描述';
+COMMENT ON COLUMN system.created_time IS '系统创建时间';
+COMMENT ON COLUMN system.updated_time IS '系统更新时间';
+
+
+CREATE TABLE subsystem (
+    id SERIAL PRIMARY KEY NOT NULL,
+    system_id INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(512),
+    created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (system_id) REFERENCES system(id)
+);
+
+-- 添加注释
+COMMENT ON TABLE subsystem IS '子系统表，用于描述系统中的各个子系统';
+COMMENT ON COLUMN subsystem.system_id IS '所属系统ID';
+COMMENT ON COLUMN subsystem.name IS '子系统名称';
+COMMENT ON COLUMN subsystem.description IS '子系统描述';
+COMMENT ON COLUMN subsystem.created_time IS '子系统创建时间';
+COMMENT ON COLUMN subsystem.updated_time IS '子系统更新时间';
+
+
+CREATE TABLE device (
+    id SERIAL PRIMARY KEY NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    system_id INT,
+    subsystem_id INT,
+    manufacturer_id INT NOT NULL,
+    status SMALLINT DEFAULT 0,
+    created_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (system_id) REFERENCES system(id),
+    FOREIGN KEY (subsystem_id) REFERENCES subsystem(id),
+    FOREIGN KEY (manufacturer_id) REFERENCES manufacturer(id)
+);
+
+-- 添加注释
+COMMENT ON TABLE device IS '设备表，设备可以直接属于系统或属于子系统';
+COMMENT ON COLUMN device.name IS '设备名称';
+COMMENT ON COLUMN device.system_id IS '所属系统ID';
+COMMENT ON COLUMN device.subsystem_id IS '所属子系统ID';
+COMMENT ON COLUMN device.manufacturer_id IS '厂家ID';
+COMMENT ON COLUMN device.status IS '设备状态';
+COMMENT ON COLUMN device.created_time IS '创建时间';
+COMMENT ON COLUMN device.updated_time IS '更新时间';
+
+
+CREATE OR REPLACE FUNCTION check_device_association() 
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.system_id IS NOT NULL AND NEW.subsystem_id IS NOT NULL THEN
+        RAISE EXCEPTION 'Device cannot belong to both system and subsystem';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER check_device_association_trigger
+BEFORE INSERT OR UPDATE ON device
+FOR EACH ROW EXECUTE FUNCTION check_device_association();
+
+
+设备管理和数据管理确实可以视为两个不同的模块，尽管它们之间存在紧密的联系。为了更清晰地组织系统，你可以考虑将设备管理和数据管理分开，分别处理设备的配置与管理，以及数据的收集与分析。
+
+### 1. **设备管理 (`devicecenter`)**：
+   - 主要负责设备的增删改查、设备类型的管理、系统和子系统的管理等。
+   - 典型的路由包括：
+     - `/devices`：设备的管理
+     - `/device_types`：设备类型的管理
+     - `/systems` 和 `/subsystems`：系统和子系统的管理
+
+### 2. **数据管理 (`datacenter`)**：
+   - 主要负责数据的采集、存储、查询和分析。
+   - 典型的路由包括：
+     - `/devices/:device_id/sensors/:sensor_id/real_time_data`：获取实时数据
+     - `/devices/:device_id/sensors/:sensor_id/historical_data`：获取历史数据
+
+### 优势：
+
+- **模块化**：通过将设备管理和数据管理分开，你可以在不同的服务或微服务中实现这些功能，减少模块之间的耦合。
+- **可扩展性**：如果未来需要扩展某一部分的功能（例如增加高级数据分析功能），将数据管理单独处理可以让你更灵活地进行扩展。
+- **清晰的职责划分**：每个模块专注于自己的核心职责，使得代码维护和理解更加简单。
+
+### 路由示例：
+
+- **设备管理模块 (`devicecenter`) 路由**：
+  - `/devices`：管理设备的创建、更新、删除。
+  - `/device_types`：管理设备类型。
+  - `/systems` 和 `/subsystems`：管理系统和子系统。
+
+- **数据管理模块 (`datacenter`) 路由**：
+  - `/devices/:device_id/sensors/:sensor_id/real_time_data`：获取特定设备的传感器实时数据。
+  - `/devices/:device_id/sensors/:sensor_id/historical_data`：获取特定设备的传感器历史数据。
+
+### 整体架构建议：
+
+- **API 网关**：如果你采用微服务架构，可以使用API网关将这些服务统一暴露给前端或其他服务。
+- **独立服务**：设备管理服务和数据管理服务可以作为独立的服务，拥有自己的数据库和逻辑处理。
+
+这样设计可以使系统更加模块化和灵活，便于将来扩展和维护。如果你有进一步的需求或需要更详细的设计指导，随时告诉我！
