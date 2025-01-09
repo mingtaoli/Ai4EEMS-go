@@ -1015,3 +1015,281 @@ OpenEMS 是一个开源的能源管理系统 (Energy Management System)，它通
 OpenEMS 提供了一套丰富的 API 接口，涵盖了系统信息管理、组件管理、数据管理、配置管理、规则引擎、报警管理和系统控制等功能。这些 API 设计为 RESTful 风格，易于集成到能源管理解决方案中，支持分布式能源系统的高效管理和优化。
 
 对于更详细的 API 文档和具体的使用说明，建议参考 OpenEMS 的官方文档，并使用 API 工具（如 Postman）进行测试和探索。
+
+Fledge 是一个开源的工业物联网（IIoT）平台，主要用于边缘计算，特别是在能源管理和工业应用中用于数据采集和处理。Fledge 提供了一套 RESTful API，用于管理和操作其核心功能。以下是 Fledge 中一些常见的 API 接口的概览。
+
+### 1. 系统管理 (System Management)
+
+**系统管理 API** 用于获取 Fledge 系统的状态信息和配置管理。
+
+- **GET `/fledge/ping`**
+  - 功能：获取 Fledge 系统的状态信息。
+  - 示例响应：返回系统的运行状态、已连接设备数、读取数据的总量等信息。
+
+- **GET `/fledge/statistics`**
+  - 功能：获取系统统计信息。
+  - 示例响应：返回 Fledge 系统中数据流的统计信息，如读取次数、数据量等。
+
+- **GET `/fledge/status`**
+  - 功能：获取系统健康状态。
+  - 示例响应：返回系统的健康状态，如是否正常运行、服务是否可用等。
+
+- **GET `/fledge/version`**
+  - 功能：获取 Fledge 系统的版本信息。
+  - 示例响应：返回当前运行的 Fledge 版本。
+
+### 2. 插件管理 (Plugin Management)
+
+**插件管理 API** 用于管理 Fledge 系统中的各种插件，包括南向插件（数据采集）和北向插件（数据发送）。
+
+- **GET `/fledge/plugins`**
+  - 功能：获取系统中已安装的插件列表。
+  - 参数：`type`（可选，指定插件类型，如 `south` 或 `north`）。
+  - 示例响应：返回插件的详细信息列表，包括插件名称、版本、类型等。
+
+- **POST `/fledge/plugins/{pluginType}/{pluginName}/install`**
+  - 功能：安装新的插件。
+  - 参数：`pluginType` 插件类型（如 `south`, `north`），`pluginName` 插件名称。
+  - 示例响应：返回插件安装的结果。
+
+- **DELETE `/fledge/plugins/{pluginType}/{pluginName}/uninstall`**
+  - 功能：卸载插件。
+  - 参数：`pluginType` 插件类型，`pluginName` 插件名称。
+  - 示例响应：返回插件卸载的结果。
+
+### 3. 数据采集 (Data Ingestion)
+
+**数据采集 API** 用于管理从设备或传感器收集的数据。
+
+- **GET `/fledge/asset`**
+  - 功能：获取系统中所有已配置资产的列表。
+  - 示例响应：返回资产列表及其相关数据，如资产ID、资产名称等。
+
+- **GET `/fledge/asset/{assetCode}`**
+  - 功能：获取特定资产的数据。
+  - 参数：`assetCode` 资产代码。
+  - 示例响应：返回特定资产的时间序列数据。
+
+- **GET `/fledge/asset/{assetCode}/{readingName}`**
+  - 功能：获取特定资产中特定读数的数据。
+  - 参数：`assetCode` 资产代码，`readingName` 读数名称。
+  - 示例响应：返回特定资产中某个读数的时间序列数据。
+
+### 4. 数据流管理 (Data Stream Management)
+
+**数据流管理 API** 用于配置和管理 Fledge 系统中的数据流和数据管道。
+
+- **GET `/fledge/streams`**
+  - 功能：获取系统中所有配置的数据流。
+  - 示例响应：返回数据流的详细信息列表，包括数据流名称、源、目标等。
+
+- **POST `/fledge/streams`**
+  - 功能：创建新的数据流。
+  - 请求体：数据流的配置参数，如源和目标信息。
+  - 示例响应：返回新建数据流的详细信息。
+
+- **DELETE `/fledge/streams/{streamId}`**
+  - 功能：删除特定的数据流。
+  - 参数：`streamId` 数据流ID。
+  - 示例响应：返回删除数据流的操作结果。
+
+### 5. 任务管理 (Task Management)
+
+**任务管理 API** 用于管理系统中的定时任务和调度任务。
+
+- **GET `/fledge/task`**
+  - 功能：获取系统中所有配置的任务列表。
+  - 示例响应：返回任务的详细信息列表，包括任务名称、状态、执行时间等。
+
+- **POST `/fledge/task/schedule`**
+  - 功能：创建和调度新任务。
+  - 请求体：任务的配置参数，如任务名称、执行时间等。
+  - 示例响应：返回新建任务的详细信息。
+
+- **DELETE `/fledge/task/{taskId}`**
+  - 功能：删除特定任务。
+  - 参数：`taskId` 任务ID。
+  - 示例响应：返回删除任务的操作结果。
+
+### 6. 日志管理 (Logging Management)
+
+**日志管理 API** 用于访问和管理系统日志。
+
+- **GET `/fledge/log/{service}`**
+  - 功能：获取特定服务的日志信息。
+  - 参数：`service` 服务名称。
+  - 示例响应：返回指定服务的日志列表。
+
+- **GET `/fledge/log`**
+  - 功能：获取系统的整体日志信息。
+  - 示例响应：返回系统的所有日志记录。
+
+- **DELETE `/fledge/log/{service}`**
+  - 功能：删除特定服务的日志。
+  - 参数：`service` 服务名称。
+  - 示例响应：返回删除日志的操作结果。
+
+### 7. 通知管理 (Notification Management)
+
+**通知管理 API** 用于配置和管理系统中的通知。
+
+- **GET `/fledge/notification`**
+  - 功能：获取系统中所有配置的通知列表。
+  - 示例响应：返回通知的详细信息列表。
+
+- **POST `/fledge/notification`**
+  - 功能：创建新的通知。
+  - 请求体：通知的配置参数，如通知名称、条件、动作等。
+  - 示例响应：返回新建通知的详细信息。
+
+- **DELETE `/fledge/notification/{notificationId}`**
+  - 功能：删除特定通知。
+  - 参数：`notificationId` 通知ID。
+  - 示例响应：返回删除通知的操作结果。
+
+### 8. 系统控制 (System Control)
+
+**系统控制 API** 用于对整个 Fledge 系统或其子系统进行控制操作。
+
+- **POST `/fledge/control/shutdown`**
+  - 功能：关闭 Fledge 系统。
+  - 示例响应：返回关闭系统的操作结果。
+
+- **POST `/fledge/control/restart`**
+  - 功能：重启 Fledge 系统。
+  - 示例响应：返回重启系统的操作结果。
+
+### 总结
+
+Fledge 提供了一套完整的 RESTful API，涵盖了系统管理、插件管理、数据采集、数据流管理、任务调度、日志管理、通知管理和系统控制等方面的功能。这些 API 为工业物联网场景下的数据采集、处理和边缘计算提供了强大的支持，可以用于构建复杂的工业物联网和能源管理系统。
+
+如果需要更详细的 API 文档和具体的使用说明，建议参考 Fledge 的官方文档，并使用 API 工具（如 Postman）进行测试和探索。
+
+Home Assistant 是一个开源的家庭自动化平台，提供了丰富的 API 接口，用于控制和管理智能家居设备、自动化任务、状态监控等。以下是 Home Assistant 中一些常见的 API 接口概览。
+
+### 1. REST API 概述
+
+Home Assistant 提供了一套基于 HTTP 的 RESTful API，用于与 Home Assistant 实例进行交互。API 可以用于获取实体的状态、控制设备、触发服务、管理配置等操作。
+
+**基础路径**：`http://<home-assistant-url>/api/`
+
+- **Authentication**: 使用 Bearer Token 进行身份验证。在 HTTP 头中添加 `Authorization: Bearer YOUR_LONG_LIVED_ACCESS_TOKEN`。
+
+### 2. 实体管理 (Entity Management)
+
+**实体管理 API** 用于获取、更新和控制 Home Assistant 实例中的所有实体。
+
+- **GET `/api/states`**
+  - 功能：获取所有实体的状态。
+  - 示例响应：返回 Home Assistant 实例中所有实体的状态信息。
+
+- **GET `/api/states/<entity_id>`**
+  - 功能：获取特定实体的状态。
+  - 参数：`entity_id` 实体的 ID，例如 `light.living_room`.
+  - 示例响应：返回指定实体的当前状态及相关属性。
+
+- **POST `/api/states/<entity_id>`**
+  - 功能：更新特定实体的状态。
+  - 参数：`entity_id` 实体的 ID。
+  - 请求体：新的状态数据。
+  - 示例响应：返回更新后的实体状态。
+
+### 3. 服务调用 (Service Calls)
+
+**服务调用 API** 用于触发 Home Assistant 中已配置的服务，如打开灯光、执行自动化任务等。
+
+- **POST `/api/services/<domain>/<service>`**
+  - 功能：调用特定服务。
+  - 参数：`domain` 服务的领域，例如 `light`，`service` 服务的名称，例如 `turn_on`。
+  - 请求体：服务调用所需的参数，例如 `{"entity_id": "light.living_room"}`。
+  - 示例响应：返回服务调用的结果。
+
+- **GET `/api/services`**
+  - 功能：获取所有可用服务的列表。
+  - 示例响应：返回 Home Assistant 实例中所有可用服务的详细信息。
+
+### 4. 日志管理 (Logbook Management)
+
+**日志管理 API** 用于访问 Home Assistant 的日志信息，包括状态变化、事件触发等。
+
+- **GET `/api/logbook/<start_time>`**
+  - 功能：获取指定时间后的日志信息。
+  - 参数：`start_time` 日志开始时间，格式为 `YYYY-MM-DDTHH:MM:SSZ`。
+  - 示例响应：返回指定时间后的日志记录列表。
+
+### 5. 事件管理 (Event Management)
+
+**事件管理 API** 用于在 Home Assistant 中触发或监听自定义事件。
+
+- **POST `/api/events/<event_type>`**
+  - 功能：触发自定义事件。
+  - 参数：`event_type` 事件类型，例如 `my_custom_event`。
+  - 请求体：事件所需的参数。
+  - 示例响应：返回事件触发的结果。
+
+- **GET `/api/events`**
+  - 功能：获取所有事件类型的列表。
+  - 示例响应：返回 Home Assistant 实例中所有可用事件类型的详细信息。
+
+### 6. 配置管理 (Configuration Management)
+
+**配置管理 API** 用于获取和修改 Home Assistant 的配置。
+
+- **GET `/api/config`**
+  - 功能：获取 Home Assistant 的当前配置。
+  - 示例响应：返回配置的详细信息，包括版本号、位置、时区等。
+
+- **GET `/api/config/core/check_config`**
+  - 功能：检查当前配置的有效性。
+  - 示例响应：返回配置检查的结果，指出是否存在错误。
+
+### 7. 模板渲染 (Template Rendering)
+
+**模板渲染 API** 用于在 Home Assistant 中动态渲染 Jinja2 模板。
+
+- **POST `/api/template`**
+  - 功能：渲染 Jinja2 模板。
+  - 请求体：模板内容，例如 `{"template": "{{ states('sensor.temperature') }}"}`。
+  - 示例响应：返回渲染模板的结果。
+
+### 8. 摄像头快照 (Camera Snapshots)
+
+**摄像头 API** 用于获取摄像头实体的快照。
+
+- **GET `/api/camera_proxy/<entity_id>`**
+  - 功能：获取摄像头的当前图像。
+  - 参数：`entity_id` 摄像头实体的 ID，例如 `camera.front_door`。
+  - 示例响应：返回当前的摄像头图像。
+
+### 9. 认证管理 (Authentication Management)
+
+**认证管理 API** 用于管理 Home Assistant 中的用户认证，包括获取当前用户信息和长时间令牌。
+
+- **GET `/api/user`**
+  - 功能：获取当前用户的信息。
+  - 示例响应：返回当前用户的详细信息。
+
+- **POST `/auth/token`**
+  - 功能：获取访问令牌。
+  - 请求体：认证信息（包括 `client_id`, `client_secret` 等）。
+  - 示例响应：返回新的访问令牌。
+
+### 10. WebSocket API
+
+除了 RESTful API，Home Assistant 还提供了 WebSocket API，用于实时通信和控制，适合需要持续更新状态或长时间保持连接的应用场景。
+
+- **WebSocket 基础路径**: `ws://<home-assistant-url>/api/websocket`
+- **功能**：
+  - 实时获取状态变化。
+  - 订阅特定事件。
+  - 执行服务调用。
+  - 获取实体的实时状态。
+
+### 总结
+
+Home Assistant 提供了丰富的 API 接口，涵盖了实体管理、服务调用、事件管理、配置管理等多个方面。这些 API 可以帮助开发者创建自定义应用、集成外部服务、实现自动化任务等。使用这些 API 可以极大地增强和扩展 Home Assistant 的功能，使其更好地适应各种智能家居场景。
+
+对于更详细的 API 文档和具体的使用示例，建议访问 Home Assistant 的官方文档，或通过 API 工具（如 Postman）进行实际测试和探索。
+
+
+https://github.com/emqx/mqtt-to-postgres （https://mp.weixin.qq.com/s/2FRTAYKEluhei-fhaWAvrw）参考从emqx到postgres的实例。这个就有数据了，（类似于edgex的export），然后就分析、闭环。
