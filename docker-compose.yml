@@ -1,0 +1,44 @@
+services:
+
+  #前端网关nginx-gateway (只代理ai4eems)
+  # Front-end gateway nginx-gateway (Only agent ai4eems)
+  ai4energy-nginx-gateway:
+    image: nginx:1.28.0-alpine
+    container_name: ai4energy-nginx-gateway
+    restart: always
+    privileged: true
+    environment:
+      - TZ=Asia/Shanghai
+    ports:
+      - 80:80
+    volumes:
+      - ./deploy/nginx/conf.d:/etc/nginx/conf.d
+      - ./data/nginx/log:/var/log/nginx
+    networks:
+      - ai4energy_net
+    depends_on:
+      - ai4energy-backend
+
+  ai4energy-backend:
+    # dockerfile: https://github.com/Mikaelemmmm/gomodd
+    image: lyumikael/gomodd:v1.22.1
+    container_name: ai4energy-backend
+    environment:
+      TZ: Asia/Shanghai
+      GOPROXY: https://goproxy.cn,direct
+    working_dir: /go/ai4energy
+    volumes:
+      - .:/go/ai4energy
+    privileged: true
+    restart: always
+    networks:
+      - ai4energy_net
+
+networks:
+  ai4energy_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+

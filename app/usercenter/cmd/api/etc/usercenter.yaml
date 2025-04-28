@@ -1,6 +1,6 @@
 Name: usercenter
 Host: 0.0.0.0
-Port: 19801
+Port: 7001
 
 #jwtAuth
 JwtAuth:
