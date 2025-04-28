@@ -1,0 +1,28 @@
+######## 项目依赖的环境，启动项目之前要先启动此环境 #######
+######## The environment that the project depends on, starting this environment before starting the project #######
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16.4
+    container_name: ai4energy-postgres
+    environment:
+      POSTGRES_USER: ai4eems_user
+      POSTGRES_PASSWORD: ai4eems_password
+      POSTGRES_DB: ai4eems_db
+    volumes:
+      - ./data/postgres/data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    privileged: true
+    restart: always
+    networks:
+      - ai4energy_net
+
+networks:
+  ai4energy_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
