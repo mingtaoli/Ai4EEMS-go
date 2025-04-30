@@ -16,8 +16,8 @@ services:
       - ./data/nginx/log:/var/log/nginx
     networks:
       - ai4energy_net
-    depends_on:
-      - ai4energy-backend
+    # depends_on:
+    #   - ai4energy-backend
 
   ai4energy-backend:
     # dockerfile: https://github.com/Mikaelemmmm/gomodd
@@ -27,6 +27,8 @@ services:
       TZ: Asia/Shanghai
       GOPROXY: https://goproxy.cn,direct
     working_dir: /go/ai4energy
+    ports:
+      - 7001:7001 # 暴露端口为了测试
     volumes:
       - .:/go/ai4energy
     privileged: true

@@ -1,6 +1,6 @@
 module github.com/ai4energy/Ai4EEMS-go
 
-go 1.22.4
+go 1.22.1
 
 require github.com/zeromicro/go-zero v1.7.0
 

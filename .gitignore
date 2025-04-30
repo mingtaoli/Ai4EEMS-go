@@ -26,3 +26,8 @@ go.work.sum
 
 .vscode/
 .idea/
+
+
+#deploy data
+data/*
+!data/.gitkeep
