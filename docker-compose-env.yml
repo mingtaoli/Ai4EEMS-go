@@ -12,6 +12,7 @@ services:
       POSTGRES_DB: ai4eems_db
     volumes:
       - ./data/postgres/data:/var/lib/postgresql/data
+      - ./deploy/postgres/initdb:/docker-entrypoint-initdb.d  # 修正后的初始化路径
     ports:
       - "5432:5432"
     privileged: true
