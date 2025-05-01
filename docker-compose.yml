@@ -39,7 +39,15 @@ services:
 
   # # Julia API Service
   # ai4energy-juliaengine:
-  #   # dockerfile: https://github.com/ai4energy/Ai4EJuliaApi.jl
+
+  #############################################################
+    # 镜像按如下说明构建
+    # dockerfile: https://github.com/ai4energy/Ai4EJuliaApi.jl
+    # git clone https://github.com/ai4energy/Ai4EJuliaApi.jl
+    # cd Ai4EJuliaApi.jl
+    # docker build -t ai4energy-juliaengine -f docker/Dockerfile . --no-cache
+  #############################################################
+  
   #   image: ai4energy-juliaengine:latest
   #   container_name: ai4energy-juliaengine
   #   volumes:
