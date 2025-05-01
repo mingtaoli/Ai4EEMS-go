@@ -38,7 +38,7 @@ services:
       - ai4energy_net
 
   # # Julia API Service
-  # ai4energy-juliaengine:
+  ai4energy-juliaengine:
 
   #############################################################
     # 镜像按如下说明构建
@@ -48,18 +48,18 @@ services:
     # docker build -t ai4energy-juliaengine -f docker/Dockerfile . --no-cache
   #############################################################
   
-  #   image: ai4energy-juliaengine:latest
-  #   container_name: ai4energy-juliaengine
-  #   volumes:
-  #     - ./data/juliaengine:/app
-  #   expose:
-  #     - "9001"
-  #   ports:
-  #     - 9001:9001 # 暴露端口为了测试
-  #   privileged: true
-  #   restart: always
-  #   networks:
-  #     - ai4energy_net
+    image: ai4energy-juliaengine:latest
+    container_name: ai4energy-juliaengine
+    volumes:
+      - ./data/juliaengine:/app
+    expose:
+      - "9001"
+    ports:
+      - 9001:9001 # 暴露端口为了测试
+    privileged: true
+    restart: always
+    networks:
+      - ai4energy_net
 
 networks:
   ai4energy_net:
