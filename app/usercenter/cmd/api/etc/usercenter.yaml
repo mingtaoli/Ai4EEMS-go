@@ -1,7 +1,8 @@
 Name: usercenter
 Host: 0.0.0.0
 Port: 7001
-
+Postgresql:
+  DataSource: postgres://ai4eems_user:ai4eems_password@127.0.0.1:5432/ai4eems_db?sslmode=disable
 #jwtAuth
 JwtAuth:
   AccessSecret: e90250297f3308eef544c5c81d6baf31577a1413ceed24f1807c4fe3a98372e6
