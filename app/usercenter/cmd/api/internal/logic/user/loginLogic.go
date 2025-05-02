@@ -2,6 +2,8 @@ package user
 
 import (
 	"context"
+	"fmt"
+	"github.com/ai4energy/Ai4EEMS-go/app/usercenter/model"
 
 	"github.com/ai4energy/Ai4EEMS-go/app/usercenter/cmd/api/internal/svc"
 	"github.com/ai4energy/Ai4EEMS-go/app/usercenter/cmd/api/internal/types"
@@ -27,5 +29,9 @@ func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic 
 func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err error) {
 	// todo: add your logic here and delete this line
 	// l.svcCtx.UsersModel.
+
+	var user *model.Ai4energyUser
+	user, err = l.svcCtx.UsersModel.FindOne(context.Background(), 1)
+	fmt.Println(user, err)
 	return
 }

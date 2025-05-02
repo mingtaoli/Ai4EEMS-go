@@ -2,17 +2,20 @@ package svc
 
 import (
 	"github.com/ai4energy/Ai4EEMS-go/app/usercenter/cmd/api/internal/config"
+	"github.com/ai4energy/Ai4EEMS-go/app/usercenter/model"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type ServiceContext struct {
-	Config config.Config
+	Config     config.Config
 	UsersModel model.Ai4energyUserModel
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	postgresConn := sqlx.Postgresql(c.Postgresql.DataSource)
+	postgresConn := sqlx.NewSqlConn("pgx", c.Postgresql.DataSource)
 	return &ServiceContext{
-		Config: c,
+		Config:     c,
 		UsersModel: model.NewAi4energyUserModel(postgresConn),
 	}
 }
