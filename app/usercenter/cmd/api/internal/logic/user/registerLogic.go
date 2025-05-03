@@ -2,11 +2,13 @@ package user
 
 import (
 	"context"
-
+	"database/sql"
+	"errors"
 	"github.com/ai4energy/Ai4EEMS-go/app/usercenter/cmd/api/internal/svc"
 	"github.com/ai4energy/Ai4EEMS-go/app/usercenter/cmd/api/internal/types"
-
+	"github.com/ai4energy/Ai4EEMS-go/app/usercenter/model"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 type RegisterLogic struct {
@@ -43,7 +45,7 @@ func (l *RegisterLogic) Register(req *types.RegisterReq) (resp *types.RegisterRe
 		return nil, errors.New("手机号已被注册")
 	}
 	// 插入新用户到数据库
-	newUser := &model.Ai4energyUser{
+	newUser := &model.User{
 		Mobile:   mobile,
 		Password: req.Password,
 	}

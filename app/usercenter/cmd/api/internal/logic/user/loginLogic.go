@@ -2,9 +2,11 @@ package user
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ai4energy/Ai4EEMS-go/app/usercenter/cmd/api/internal/svc"
 	"github.com/ai4energy/Ai4EEMS-go/app/usercenter/cmd/api/internal/types"
+	"github.com/ai4energy/Ai4EEMS-go/app/usercenter/model"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
