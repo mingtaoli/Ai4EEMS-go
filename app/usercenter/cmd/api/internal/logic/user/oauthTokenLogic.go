@@ -15,7 +15,7 @@ type OauthTokenLogic struct {
 	svcCtx *svc.ServiceContext
 }
 
-// oauth2 token
+// OAuth2 令牌端点 (第二步: 用授权码换取访问令牌)
 func NewOauthTokenLogic(ctx context.Context, svcCtx *svc.ServiceContext) *OauthTokenLogic {
 	return &OauthTokenLogic{
 		Logger: logx.WithContext(ctx),

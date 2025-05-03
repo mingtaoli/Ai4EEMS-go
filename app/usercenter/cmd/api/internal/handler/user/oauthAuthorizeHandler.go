@@ -9,7 +9,7 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-// oauth2 authorization
+// OAuth2 授权端点 (第一步: 请求授权码)
 func OauthAuthorizeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.OAuthAuthorizeReq
@@ -19,11 +19,11 @@ func OauthAuthorizeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 
 		l := user.NewOauthAuthorizeLogic(r.Context(), svcCtx)
-		resp, err := l.OauthAuthorize(&req)
+		err := l.OauthAuthorize(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			httpx.Ok(w)
 		}
 	}
 }

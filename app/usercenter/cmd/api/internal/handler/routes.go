@@ -16,25 +16,25 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
-				// login
+				// 用户登录
 				Method:  http.MethodPost,
 				Path:    "/user/login",
 				Handler: user.LoginHandler(serverCtx),
 			},
 			{
-				// oauth2 authorization
+				// OAuth2 授权端点 (第一步: 请求授权码)
 				Method:  http.MethodGet,
 				Path:    "/user/oauth/authorize",
 				Handler: user.OauthAuthorizeHandler(serverCtx),
 			},
 			{
-				// oauth2 token
+				// OAuth2 令牌端点 (第二步: 用授权码换取访问令牌)
 				Method:  http.MethodPost,
 				Path:    "/user/oauth/token",
 				Handler: user.OauthTokenHandler(serverCtx),
 			},
 			{
-				// register
+				// 用户注册
 				Method:  http.MethodPost,
 				Path:    "/user/register",
 				Handler: user.RegisterHandler(serverCtx),
@@ -46,7 +46,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		[]rest.Route{
 			{
-				// get user info
+				// 获取当前登录用户的详细信息
 				Method:  http.MethodPost,
 				Path:    "/user/detail",
 				Handler: user.DetailHandler(serverCtx),

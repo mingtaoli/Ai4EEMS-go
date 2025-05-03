@@ -4,8 +4,8 @@
 package types
 
 type LoginReq struct {
-	Mobile   string `json:"mobile"`
-	Password string `json:"password"`
+	Mobile   string `json:"mobile"`   // 登录用手机号 (或 login_name/email，根据你的设计)
+	Password string `json:"password"` // 密码
 }
 
 type LoginResp struct {
@@ -15,55 +15,56 @@ type LoginResp struct {
 }
 
 type OAuthAuthorizeReq struct {
-	ClientId     string `json:"client_id"`
-	RedirectUri  string `json:"redirect_uri"`
-	ResponseType string `json:"response_type"`
-	Scope        string `json:"scope"`
-	State        string `json:"state"`
+	ClientId     string `form:"client_id" json:"client_id"`           // 客户端 ID (必填)
+	RedirectUri  string `form:"redirect_uri" json:"redirect_uri"`     // 回调 URI (必填)
+	ResponseType string `form:"response_type" json:"response_type"`   // 必须是 "code" (必填)
+	Scope        string `form:"scope,optional" json:"scope,optional"` // 请求的权限范围 (可选)
+	State        string `form:"state,optional" json:"state,optional"` // 客户端状态值，用于防 CSRF (可选, 推荐)
 }
 
 type OAuthAuthorizeResp struct {
-	Code  string `json:"code"`
-	State string `json:"state"`
+	Code  string `json:"code"`  // 授权码 (实际通过重定向参数传递)
+	State string `json:"state"` // 客户端状态值 (如果请求中提供了)
 }
 
 type OAuthTokenReq struct {
-	ClientId     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
-	Code         string `json:"code"`
-	GrantType    string `json:"grant_type"`
-	RedirectUri  string `json:"redirect_uri"`
+	ClientId     string `json:"client_id"`     // 客户端 ID (必填)
+	ClientSecret string `json:"client_secret"` // 客户端密钥 (必填)
+	Code         string `json:"code"`          // 从 /authorize 获取的授权码 (必填)
+	GrantType    string `json:"grant_type"`    // 必须是 "authorization_code" (必填)
+	RedirectUri  string `json:"redirect_uri"`  // 必须与 /authorize 请求中的一致 (必填)
 }
 
 type OAuthTokenResp struct {
-	AccessToken  string `json:"access_token"`
-	TokenType    string `json:"token_type"`
-	ExpiresIn    int64  `json:"expires_in"`
-	RefreshToken string `json:"refresh_token"`
+	AccessToken  string `json:"access_token"`            // 访问令牌
+	TokenType    string `json:"token_type"`              // 令牌类型, 通常是 "Bearer"
+	ExpiresIn    int64  `json:"expires_in"`              // 令牌有效期（秒）
+	RefreshToken string `json:"refresh_token,omitempty"` // 刷新令牌 (如果支持并返回)
+	Scope        string `json:"scope,omitempty"`         // 实际授予的权限范围 (如果与请求的不同)
 }
 
 type RegisterReq struct {
-	Mobile   string `json:"mobile"`
-	Password string `json:"password"`
+	Mobile   string `json:"mobile"`   // 注册用手机号
+	Password string `json:"password"` // 密码
 }
 
 type RegisterResp struct {
-	AccessToken  string `json:"accessToken"`
-	AccessExpire int64  `json:"accessExpire"`
-	RefreshAfter int64  `json:"refreshAfter"`
+	AccessToken  string `json:"accessToken"`  // JWT 访问令牌
+	AccessExpire int64  `json:"accessExpire"` // 令牌过期时间戳 (秒)
+	RefreshAfter int64  `json:"refreshAfter"` // 建议在此时间戳后刷新令牌 (秒)
 }
 
 type User struct {
 	Id       int64  `json:"id"`
-	Mobile   string `json:"mobile"`
-	Nickname string `json:"nickname"`
-	Avatar   string `json:"avatar"`
-	Remark   string `json:"remark"`
+	Mobile   string `json:"mobile,omitempty"`   // 手机号 (omitempty: 如果为空则不在json中显示)
+	Nickname string `json:"nickname,omitempty"` // 昵称 (可以对应数据库的 real_name 或 login_name，或单独字段)
+	Avatar   string `json:"avatar,omitempty"`   // 头像地址
+	Remark   string `json:"remark,omitempty"`   // 备注
 }
 
 type UserInfoReq struct {
 }
 
 type UserInfoResp struct {
-	UserInfo User `json:"userInfo"`
+	UserInfo User `json:"userInfo"` // 包含 User 结构体
 }

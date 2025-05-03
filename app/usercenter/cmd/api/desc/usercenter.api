@@ -1,49 +1,66 @@
 syntax = "v1"
 
 info (
-	title:   "Ai4Energy用户中心服务"
-	desc:    "Ai4Energy用户中心服务"
+	title:   "Ai4Energy 用户中心服务"
+	desc:    "提供用户注册、登录、信息获取及 OAuth2 认证功能的 HTTP API 服务" // 更详细的描述
 	author:  "Mingtao Li"
 	email:   "mingtao@xjtu.edu.cn"
 	version: "v1"
 )
 
+// 导入类型定义文件
+// 请确保这里的路径相对于当前 usercenter.api 文件是正确的
+// 例如，如果 user.api 在 internal/types/ 目录下:
+// import "internal/types/user.api"
+// 如果在同一目录下 (通常不推荐这样组织):
+// import "user.api"
 import (
 	"user/user.api"
 )
 
-//不需要登录
+// --- 公开访问接口 (不需要 JWT 登录态) ---
 @server (
-	prefix: usercenter/v1
-	group:  user
+	prefix: usercenter/v1 // API 基础路径前缀
+	group:  user // 路由分组名，会影响生成的 handler 目录
 )
 service usercenter {
-	@doc "register"
-	@handler register
+	@doc "用户注册" // 接口文档说明
+	@handler register // 对应 internal/logic/registerlogic.go
 	post /user/register (RegisterReq) returns (RegisterResp)
 
-	@doc "login"
-	@handler login
+	@doc "用户登录"
+	@handler login // 对应 internal/logic/loginlogic.go
 	post /user/login (LoginReq) returns (LoginResp)
 
-	@doc "oauth2 authorization"
-	@handler oauthAuthorize
-	get /user/oauth/authorize (OAuthAuthorizeReq) returns (OAuthAuthorizeResp)
+	@doc "OAuth2 授权端点 (第一步: 请求授权码)"
+	@handler oauthAuthorize // 对应 internal/logic/oauthauthorizelogic.go
+	// 注意：虽然接口本身不需要JWT，但其内部逻辑通常会检查用户是否已登录，
+	// 若未登录会引导用户登录，然后才进行授权确认。
+	// 最终响应是一个 HTTP 302 重定向，而非直接返回 JSON。
+	get /user/oauth/authorize (OAuthAuthorizeReq) // 使用 GET 方法
 
-	@doc "oauth2 token"
-	@handler oauthToken
+	@doc "OAuth2 令牌端点 (第二步: 用授权码换取访问令牌)"
+	@handler oauthToken // 对应 internal/logic/oauthtokenlogic.go
 	post /user/oauth/token (OAuthTokenReq) returns (OAuthTokenResp)
 }
 
-//需要登录
+// --- 需要认证的接口 (请求头需要携带有效的 JWT) ---
 @server (
 	prefix: usercenter/v1
 	group:  user
-	jwt:    JwtAuth
+	// 指定 JWT 认证中间件的名称 (需要在配置文件 *.yaml 中配置 Auth 相关参数)
+	jwt: JwtAuth
 )
 service usercenter {
-	@doc "get user info"
-	@handler detail
-	post /user/detail (UserInfoReq) returns (UserInfoResp)
+	@doc "获取当前登录用户的详细信息"
+	@handler detail // 对应 internal/logic/detaillogic.go
+	// UserInfoReq 是空结构体，因为用户信息从 JWT 中解析得到 userId
+	post /user/detail (UserInfoReq) returns (UserInfoResp) // 使用 POST 或 GET 均可
+// 如果需要微信小程序认证接口，可以取消下面的注释
+// @doc "微信小程序认证/登录"
+// @handler wxMiniAuth           // 对应 internal/logic/wxminiauthlogic.go
+// post /user/wxMiniAuth (WXMiniAuthReq) returns (WXMiniAuthResp)
+// 未来可能添加的其他需要登录态的接口...
+// 例如：更新用户信息、修改密码等
 }
 

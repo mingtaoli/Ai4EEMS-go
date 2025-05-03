@@ -8,14 +8,13 @@ import (
 )
 
 type ServiceContext struct {
-	Config     config.Config
-	UsersModel model.Ai4energyUserModel
+	Config config.Config
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	postgresConn := sqlx.NewSqlConn("pgx", c.Postgresql.DataSource)
 	return &ServiceContext{
 		Config:     c,
-		UsersModel: model.NewAi4energyUserModel(postgresConn),
+		UsersModel: model.NewUserModel(postgresConn),
 	}
 }

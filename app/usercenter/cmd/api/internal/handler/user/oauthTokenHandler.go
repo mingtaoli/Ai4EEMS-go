@@ -9,7 +9,7 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-// oauth2 token
+// OAuth2 令牌端点 (第二步: 用授权码换取访问令牌)
 func OauthTokenHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.OAuthTokenReq

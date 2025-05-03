@@ -2,11 +2,6 @@ package user
 
 import (
 	"context"
-	"database/sql"
-	"errors"
-
-	"github.com/ai4energy/Ai4EEMS-go/app/usercenter/model"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 
 	"github.com/ai4energy/Ai4EEMS-go/app/usercenter/cmd/api/internal/svc"
 	"github.com/ai4energy/Ai4EEMS-go/app/usercenter/cmd/api/internal/types"
@@ -20,7 +15,7 @@ type RegisterLogic struct {
 	svcCtx *svc.ServiceContext
 }
 
-// register
+// 用户注册
 func NewRegisterLogic(ctx context.Context, svcCtx *svc.ServiceContext) *RegisterLogic {
 	return &RegisterLogic{
 		Logger: logx.WithContext(ctx),

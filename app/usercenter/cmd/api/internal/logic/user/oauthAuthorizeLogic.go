@@ -15,7 +15,7 @@ type OauthAuthorizeLogic struct {
 	svcCtx *svc.ServiceContext
 }
 
-// oauth2 authorization
+// OAuth2 授权端点 (第一步: 请求授权码)
 func NewOauthAuthorizeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *OauthAuthorizeLogic {
 	return &OauthAuthorizeLogic{
 		Logger: logx.WithContext(ctx),
@@ -24,8 +24,8 @@ func NewOauthAuthorizeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Oa
 	}
 }
 
-func (l *OauthAuthorizeLogic) OauthAuthorize(req *types.OAuthAuthorizeReq) (resp *types.OAuthAuthorizeResp, err error) {
+func (l *OauthAuthorizeLogic) OauthAuthorize(req *types.OAuthAuthorizeReq) error {
 	// todo: add your logic here and delete this line
 
-	return
+	return nil
 }

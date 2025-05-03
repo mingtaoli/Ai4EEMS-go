@@ -15,7 +15,7 @@ type DetailLogic struct {
 	svcCtx *svc.ServiceContext
 }
 
-// get user info
+// 获取当前登录用户的详细信息
 func NewDetailLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DetailLogic {
 	return &DetailLogic{
 		Logger: logx.WithContext(ctx),
