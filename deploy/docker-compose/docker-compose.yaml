@@ -1,14 +1,129 @@
+name: ai4eems-go
 services:
-  # PostgreSQL Database
+  etcd:
+    image: bitnami/etcd:3.5.1
+    container_name: ai4eems-etcd
+    restart: always
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
+    expose:
+      - "2379"
+    healthcheck:
+      test: ["CMD-SHELL", "etcdctl get / --prefix --keys-only || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  apisix:
+    image: apache/apisix:3.8.0-alpine
+    container_name: ai4eems-apisix
+    restart: always
+    volumes:
+      - ./apisix/config.yaml:/usr/local/apisix/conf/config.yaml
+    environment:
+      - APISIX_ETCD_HOST=etcd:2379 
+    depends_on:
+      etcd:
+        condition: service_healthy
+
+  apisix-dashboard:
+    image: apache/apisix-dashboard:3.0.1
+    container_name: ai4eems-apisix-dashboard
+    restart: always
+    volumes:
+      - ./apisix/dashboard_config.yaml:/usr/local/apisix-dashboard/conf/conf.yaml
+    environment:
+      - APISIX_CONFIG_ETCD_HOSTS=http://etcd:2379
+    depends_on:
+      - apisix
+    ports:
+      - "9000:9000"
+
   postgres:
     image: postgres:16.4
     container_name: ai4eems-postgres
     env_file:
       - ai4eems.env
     volumes:
-      - /srv/ai4energy/postgres-data:/var/lib/postgresql/data
+      - ./postgres-data:/var/lib/postgresql/data
     expose:
       - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    container_name: ai4eems-redis
+    restart: always
+    expose:
+      - "6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+
+  rmqnamesrv:
+    image: apache/rocketmq:4.9.4
+    container_name: ai4eems-rmqnamesrv
+    restart: always
+    command: sh mqnamesrv
+    expose:
+      - "9876"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9876/route?topic=HealthCheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  rmqbroker:
+    image: apache/rocketmq:4.9.4
+    container_name: ai4eems-rmqbroker
+    restart: always
+    depends_on:
+      rmqnamesrv:
+        condition: service_healthy
+    command: sh mqbroker -n rmqnamesrv:9876 -c ../conf/broker.conf
+    environment:
+      - NAMESRV_ADDR=rmqnamesrv:9876
+      - ROCKETMQ_BROKER_IP=rmqbroker 
+    expose:
+      - "10909"
+      - "10911"
+
+  # 8. Go-Zero 应用服务 (核心业务逻辑)
+  go-zero-system:
+    # 假设您的 Go-Zero 项目放在 ./go-zero-app 目录
+    build:
+      context: ./go-zero-app 
+      dockerfile: Dockerfile
+    container_name: ai4eems-go-zero-system
+    restart: always
+    # 注入所有依赖组件的内部 DNS 地址
+    environment:
+      - ETCD_HOST=etcd:2379
+      - REDIS_HOST=redis:6379
+      - DB_HOST=postgres:5432 # 使用 postgres 服务名
+      - ROCKETMQ_NAMESRV=rmqnamesrv:9876
+    # 确保基础设施健康后，Go-Zero 应用才开始尝试启动和连接
+    depends_on:
+      etcd:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rmqbroker:
+        condition: service_started # Broker 启动即可，不强制 healthy
+    # 假设 Go-Zero API 服务监听 8080 端口，供 APISIX 访问
+    expose:
+      - "8080" 
+    volumes:
+      - /srv/ai4energy/go-zero-system:/app # 假设用于挂载日志或配置
 
   # Julia API Service
   ai4ejuliaapi:
