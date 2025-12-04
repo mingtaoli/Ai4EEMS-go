@@ -1,0 +1,26 @@
+conf:
+  listen:
+    host: "0.0.0.0"
+    port: 9000
+
+  etcd:
+    endpoints:
+      - "http://etcd:2379"
+    prefix: "/apisix"
+    timeout: 30
+
+  # -----------------------------------------------------------
+  # JWT 密钥配置 (用于 Dashboard 认证)
+  # -----------------------------------------------------------
+  # 建议在生产环境中使用复杂密钥
+  jwt:
+    expire: 3600 # 令牌过期时间 (秒)
+    key: "abc_default_secret_key_used_for_jwt_signing_and_verification"
+
+auth:
+  default:
+    type: built-in
+    users:
+      - username: admin
+        password: admin
+        role: super_admin
