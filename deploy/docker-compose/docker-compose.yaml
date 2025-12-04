@@ -1,7 +1,7 @@
 name: ai4eems-go
 services:
   etcd:
-    image: bitnami/etcd:3.5.1
+    image: quay.io/coreos/etcd:v3.6.6
     container_name: ai4eems-etcd
     restart: always
     environment:
@@ -10,10 +10,10 @@ services:
     expose:
       - "2379"
     healthcheck:
-      test: ["CMD-SHELL", "etcdctl get / --prefix --keys-only || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ["CMD", "/usr/local/bin/etcdctl", "endpoint", "health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   apisix:
     image: apache/apisix:3.8.0-alpine
