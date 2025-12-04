@@ -20,14 +20,17 @@ conf:
     error_log:
       level: warn
       file_path: /usr/local/apisix-dashboard/logs/error.log
+  apisix:
+    host:
+      - "http://apisix:9180" # 使用 Docker Compose 服务名和 Admin API 端口
+    admin_key: "edd1c9f034335f136f87ad84b625c8f1" # 必须与 apisix/config.yaml 中的密钥一致
 
-auth:
-  default:
-    type: built-in
-    users:
-      - username: admin
-        password: admin
-        role: super_admin # 确保 admin 拥有最高权限
-      - username: user
-        password: user
-        role: viewer      # 可以定义为较低的权限，例如 'viewer'
+authentication:
+  secret:
+    secret
+  expire_time: 3600
+  users:
+    - username: admin
+      password: admin
+    - username: user
+      password: user
