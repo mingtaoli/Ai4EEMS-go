@@ -7,6 +7,7 @@ services:
     environment:
       - ALLOW_NONE_AUTHENTICATION=yes
       - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
+      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
     expose:
       - "2379"
     healthcheck:
@@ -16,16 +17,19 @@ services:
       retries: 10
 
   apisix:
-    image: apache/apisix:3.8.0-alpine
+    image: apache/apisix:3.14.1-ubuntu
     container_name: ai4eems-apisix
     restart: always
     volumes:
       - ./apisix/config.yaml:/usr/local/apisix/conf/config.yaml
     environment:
-      - APISIX_ETCD_HOST=etcd:2379 
+      - APISIX_CONF_ETCD={"host":["http://etcd:2379"],"prefix":"/apisix"}
+      - APISIX_ETCD_PREFIX=/apisix
+      - APISIX_ETCD_HOST=etcd:2379
     depends_on:
       etcd:
         condition: service_healthy
+
 
   apisix-dashboard:
     image: apache/apisix-dashboard:3.0.1

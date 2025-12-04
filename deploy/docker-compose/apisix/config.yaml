@@ -1,0 +1,10 @@
+# apisix/config.yaml
+# chmod 777 config.yaml
+
+deployment:
+  etcd:
+    host:
+      - "http://etcd:2379"  # 保持 HTTP 连接
+    prefix: "/apisix"
+    timeout: 30
+    # 其他默认配置可以省略或保留
