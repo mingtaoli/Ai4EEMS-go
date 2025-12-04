@@ -1,3 +1,5 @@
+# apisix/dashboard_config.yaml
+
 conf:
   listen:
     host: "0.0.0.0"
@@ -9,13 +11,15 @@ conf:
     prefix: "/apisix"
     timeout: 30
 
-  # -----------------------------------------------------------
-  # JWT 密钥配置 (用于 Dashboard 认证)
-  # -----------------------------------------------------------
-  # 建议在生产环境中使用复杂密钥
   jwt:
-    expire: 3600 # 令牌过期时间 (秒)
+    expire: 3600
     key: "abc_default_secret_key_used_for_jwt_signing_and_verification"
+
+  # 【可选添加】日志配置，方便排查问题
+  log:
+    error_log:
+      level: warn
+      file_path: /usr/local/apisix-dashboard/logs/error.log
 
 auth:
   default:
@@ -23,4 +27,7 @@ auth:
     users:
       - username: admin
         password: admin
-        role: super_admin
+        role: super_admin # 确保 admin 拥有最高权限
+      - username: user
+        password: user
+        role: viewer      # 可以定义为较低的权限，例如 'viewer'

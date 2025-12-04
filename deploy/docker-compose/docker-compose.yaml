@@ -8,8 +8,8 @@ services:
       - ALLOW_NONE_AUTHENTICATION=yes
       - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
       - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
-    expose:
-      - "2379"
+    ports:
+      - "2379:2379"
     healthcheck:
       test: ["CMD", "/usr/local/bin/etcdctl", "endpoint", "health"]
       interval: 5s
@@ -24,15 +24,14 @@ services:
       - ./apisix/config.yaml:/usr/local/apisix/conf/config.yaml
     environment:
       - APISIX_CONF_ETCD={"host":["http://etcd:2379"],"prefix":"/apisix"}
-      - APISIX_ETCD_PREFIX=/apisix
-      - APISIX_ETCD_HOST=etcd:2379
     depends_on:
       etcd:
         condition: service_healthy
     ports:
+      - "9180:9180"
       - "9080:9080"
-      - "9443:9443"
       - "9091:9091"
+      - "9443:9443"
 
   apisix-dashboard:
     image: apache/apisix-dashboard:3.0.1-alpine
