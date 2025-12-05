@@ -65,14 +65,21 @@ services:
       - "9802:80"
 
   postgres:
-    image: postgres:16.4
+    image: postgres:16-alpine
     container_name: ai4eems-postgres
     env_file:
       - ai4eems.env
+    restart: always
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
+      - ./ai4eemsdb.sql:/docker-entrypoint-initdb.d/ai4eemsdb.sql:ro
     expose:
       - "5432"
+    environment:
+      POSTGRES_DB: ${PG_DATABASE:-ai4eemsdb}
+      POSTGRES_USER: ${PG_USER:-ai4eemsuser}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:-124356987}
+      TZ: Asia/Shanghai
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
@@ -80,11 +87,13 @@ services:
       retries: 5
 
   redis:
-    image: redis:7
+    image: redis:6-alpine
     container_name: ai4eems-redis
     restart: always
     expose:
       - "6379"
+    volumes:
+      - redis:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 1s
