@@ -73,6 +73,7 @@ services:
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
       - ./ai4eemsdb.sql:/docker-entrypoint-initdb.d/ai4eemsdb.sql:ro
+      # 复制deploy/postgresql/initdb目录中的sql文件初始化
     expose:
       - "5432"
     environment:

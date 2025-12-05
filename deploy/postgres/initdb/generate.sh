@@ -1,0 +1,2 @@
+$PG_URL = "postgres://ai4eemsuser:124356987@127.0.0.1:5432/ai4eemsdb?sslmode=disable"
+goctl model pg datasource --url="$PG_URL" --table="system_users,system_dept,system_post,system_role,system_user_post,system_user_role" -style GoZero
