@@ -46,6 +46,24 @@ services:
     ports:
       - "9000:9000"
 
+  web1:
+    image: nginx:latest
+    container_name: ai4eems-web1
+    restart: always
+    volumes:
+      - ./web1.conf:/etc/nginx/nginx.conf
+    ports:
+      - "9801:80"
+
+  web2:
+    image: nginx:latest
+    container_name: ai4eems-web2
+    restart: always
+    volumes:
+      - ./web2.conf:/etc/nginx/nginx.conf
+    ports:
+      - "9802:80"
+
   postgres:
     image: postgres:16.4
     container_name: ai4eems-postgres
