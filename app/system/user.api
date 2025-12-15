@@ -1,0 +1,268 @@
+syntax = "v1"
+
+info(
+    title: "System Services - Admin/App API"
+    desc: "系统模块 - 用户管理、鉴权等核心功能"
+    author: "YourName"
+    email: "YourEmail"
+    version: "v1"
+)
+
+//=============================================================
+// 1. 通用结构体定义
+//=============================================================
+type (
+    // 通用分页请求
+    PageReq {
+        @doc "页码"
+        current int64 `form:"current,default=1"`
+        @doc "每页条数"
+        pageSize int64 `form:"pageSize,default=10"`
+    }
+
+    // 通用分页响应
+    PageResp {
+        @doc "总条数"
+        total int64 `json:"total"`
+    }
+    
+    // 基础 ID 请求/响应
+    IDReq {
+        @doc "ID 编号"
+        id int64 `form:"id"`
+    }
+    LongResp {
+        id int64 `json:"id"`
+    }
+    EmptyResp {}
+)
+
+//=============================================================
+// 2. Auth 鉴权相关结构体
+//=============================================================
+type (
+    AuthLoginReq {
+        @doc "账号"
+        username string `json:"username"`
+        @doc "密码"
+        password string `json:"password"`
+    }
+    AuthLoginResp {
+        @doc "访问令牌"
+        accessToken string `json:"accessToken"`
+        @doc "过期时间（秒）"
+        expiresTime int64 `json:"expiresTime"`
+    }
+)
+
+//=============================================================
+// 3. User 用户相关结构体
+//=============================================================
+type (
+    // 详细用户响应 (对应 AdminUserDO)
+    UserResp {
+        id int64 `json:"id"`
+        username string `json:"username"`
+        nickname string `json:"nickname"`
+        email string `json:"email,optional"`
+        mobile string `json:"mobile,optional"`
+        sex int64 `json:"sex"`          // 性别 (0未知, 1男, 2女)
+        avatar string `json:"avatar,optional"`
+        status int64 `json:"status"`    // 状态 (0正常 1停用)
+        deptId int64 `json:"deptId"`
+        postIds []int64 `json:"postIds"` // 岗位ID列表
+        
+        loginIp string `json:"loginIp,optional"`
+        loginDate int64 `json:"loginDate,optional"`
+        createTime int64 `json:"createTime"`
+    }
+
+    // User 创建请求
+    UserCreateReq {
+        username string `json:"username"`
+        password string `json:"password"`
+        nickname string `json:"nickname"`
+        deptId int64 `json:"deptId"`
+        mobile string `json:"mobile,optional"`
+        email string `json:"email,optional"`
+        sex int64 `json:"sex,optional"`
+        postIds []int64 `json:"postIds"`
+    }
+
+    // User 更新请求
+    UserUpdateReq {
+        id int64 `json:"id"`
+        nickname string `json:"nickname"`
+        deptId int64 `json:"deptId"`
+        mobile string `json:"mobile,optional"`
+        email string `json:"email,optional"`
+        sex int64 `json:"sex,optional"`
+        postIds []int64 `json:"postIds"`
+    }
+    
+    // User 分页查询请求 (包含 PageReq)
+    UserPageReq {
+        PageReq
+        @doc "用户账号，模糊匹配"
+        username string `form:"username,optional"`
+        @doc "手机号码，模糊匹配"
+        mobile string `form:"mobile,optional"`
+        @doc "用户状态（0正常 1停用）"
+        status int64 `form:"status,optional"`
+        @doc "部门ID"
+        deptId int64 `form:"deptId,optional"`
+    }
+
+    UserPageResp {
+        PageResp
+        @doc "用户列表"
+        list []UserResp `json:"list"`
+    }
+    
+    // 用户状态更新
+    UserUpdateStatusReq {
+        @doc "用户ID"
+        id int64 `json:"id"`
+        @doc "状态（0正常 1停用）"
+        status int64 `json:"status"`
+    }
+    
+    // 重置密码
+    UserUpdatePasswordReq {
+        @doc "用户ID"
+        id int64 `json:"id"`
+        @doc "新密码"
+        password string `json:"password"`
+    }
+    
+    // 简易用户响应 (用于下拉列表)
+    UserSimpleResp {
+        id int64 `json:"id"`
+        nickname string `json:"nickname"`
+        deptId int64 `json:"deptId"`
+    }
+    UserSimpleListResp {
+        @doc "用户精简列表"
+        list []UserSimpleResp `json:"list"`
+    }
+)
+
+//=============================================================
+// 4. User Profile 个人中心结构体
+//=============================================================
+type (
+    // 个人信息响应
+    UserProfileResp {
+        id int64 `json:"id"`
+        username string `json:"username"`
+        nickname string `json:"nickname"`
+        mobile string `json:"mobile,optional"`
+        email string `json:"email,optional"`
+        sex int64 `json:"sex"`
+        avatar string `json:"avatar,optional"`
+        
+        deptName string `json:"deptName,optional"`
+        roleNames []string `json:"roleNames"`
+        postNames []string `json:"postNames"`
+    }
+
+    // 个人信息更新请求
+    UserProfileUpdateReq {
+        nickname string `json:"nickname"`
+        mobile string `json:"mobile,optional"`
+        email string `json:"email,optional"`
+        sex int64 `json:"sex,optional"`
+    }
+
+    // 个人密码更新请求
+    UserProfileUpdatePasswordReq {
+        @doc "旧密码"
+        oldPassword string `json:"oldPassword"`
+        @doc "新密码"
+        newPassword string `json:"newPassword"`
+    }
+)
+
+//=============================================================
+// 5. API 路由定义 (Admin API)
+//=============================================================
+
+// --- Group: Auth 鉴权接口 (无需 AuthMiddleware) ---
+// 路径前缀: /admin-api/system/auth
+@server(
+    prefix: /admin-api/system/auth
+    group: auth
+)
+service system {
+    @doc "管理后台登录"
+    @handler login
+    post /login (AuthLoginReq) returns (AuthLoginResp)
+    
+    @doc "登出"
+    @handler logout
+    post /logout (EmptyResp)
+}
+
+
+// --- Group: User 用户管理接口 (需要 AuthMiddleware) ---
+// 路径前缀: /admin-api/system/user
+@server(
+    prefix: /admin-api/system/user
+    group: user
+    middleware: AuthMiddleware 
+)
+service system {
+    @doc "新增用户"
+    @handler createUser
+    post /create (UserCreateReq) returns (LongResp)
+
+    @doc "修改用户"
+    @handler updateUser
+    put /update (UserUpdateReq) returns (EmptyResp)
+
+    @doc "删除用户"
+    @handler deleteUser
+    delete /delete (IDReq) returns (EmptyResp)
+
+    @doc "修改用户状态"
+    @handler updateUserStatus
+    put /update-status (UserUpdateStatusReq) returns (EmptyResp)
+    
+    @doc "重置用户密码"
+    @handler updateUserPassword
+    put /update-password (UserUpdatePasswordReq) returns (EmptyResp)
+
+    @doc "获得用户详情"
+    @handler getUser
+    get /get (IDReq) returns (UserResp)
+
+    @doc "获得用户分页列表"
+    @handler getUserPage
+    get /page (UserPageReq) returns (UserPageResp)
+    
+    @doc "获取用户精简信息列表（下拉框）"
+    @handler getSimpleUserList
+    get /simple-list returns (UserSimpleListResp)
+}
+
+
+// --- Group: Profile 个人中心接口 (需要 AuthMiddleware) ---
+// 路径前缀: /admin-api/system/user/profile
+@server(
+    prefix: /admin-api/system/user/profile
+    group: profile
+    middleware: AuthMiddleware 
+)
+service system {
+    @doc "获得登录用户信息"
+    @handler getUserProfile
+    get /get returns (UserProfileResp)
+
+    @doc "修改用户个人信息"
+    @handler updateUserProfile
+    put /update (UserProfileUpdateReq) returns (EmptyResp)
+
+    @doc "修改用户个人密码"
+    @handler updateUserProfilePassword
+    put /update-password (UserProfileUpdatePasswordReq) returns (EmptyResp)
+}

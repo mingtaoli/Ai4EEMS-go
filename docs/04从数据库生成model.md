@@ -1,0 +1,1 @@
+从postgresql的数据表结构使用goctl生成model。

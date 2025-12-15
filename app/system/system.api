@@ -1,0 +1,18 @@
+syntax = "v1"
+
+info(
+    title: "System Services - Admin/App API"
+    desc: "系统模块 - 用户管理、鉴权等核心功能"
+    author: "YourName"
+    email: "YourEmail"
+    version: "v1"
+)
+
+// 导入通用结构体定义 (例如 PageReq, EmptyResp)
+// import "common.api"
+// // 导入认证/鉴权接口
+// import "auth.api"
+// 导入用户管理接口 (UserController)
+import "user.api"
+// 导入个人中心接口 (UserProfileController)
+// import "user_profile.api"
