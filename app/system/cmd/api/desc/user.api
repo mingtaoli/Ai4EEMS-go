@@ -8,25 +8,36 @@ info(
     version: "v1"
 )
 
-//=============================================================
-// 1. 通用结构体定义
-//=============================================================
 type (
 
-    // UserSaveReq - 对应 UserSaveReqVO (新增/修改通用)
-    UserSaveReq {
-        Id       uint64   `json:"id,optional"`       // 修改时必填
-        Username string   `json:"username"`          // 用户账号
-        Password string   `json:"password,optional"` // 密码（新增必填，修改选填）
-        Nickname string   `json:"nickname"`          // 用户昵称
-        Remark   string   `json:"remark,optional"`   // 备注
-        DeptId   uint64   `json:"deptId,optional"`   // 部门ID
-        PostIds  []uint64 `json:"postIds,optional"`  // 岗位ID数组
-        Email    string   `json:"email,optional"`    // 邮箱
-        Mobile   string   `json:"mobile,optional"`   // 手机号
-        Sex      int32    `json:"sex,optional"`      // 性别
-        Avatar   string   `json:"avatar,optional"`   // 头像
-        Status   int32    `json:"status"`            // 状态
+    // UserCreateReq - 新增用户
+    UserCreateReq {
+        Username string   `json:"username"`           // 用户账号
+        Password string   `json:"password"`           // 密码 (新增必填)
+        Nickname string   `json:"nickname"`           // 用户昵称
+        Remark   string   `json:"remark,optional"`    // 备注
+        DeptId   uint64   `json:"deptId,optional"`    // 部门ID
+        PostIds  []uint64 `json:"postIds,optional"`   // 岗位ID数组
+        Email    string   `json:"email,optional"`     // 邮箱
+        Mobile   string   `json:"mobile,optional"`    // 手机号
+        Sex      int32    `json:"sex,optional"`       // 性别
+        Avatar   string   `json:"avatar,optional"`    // 头像
+        Status   int32    `json:"status"`             // 状态
+    }
+
+    // UserUpdateReq - 修改用户
+    UserUpdateReq {
+        Id       uint64   `json:"id"`                 // 用户编号 (必填)
+        Username string   `json:"username"`           // 用户账号
+        Nickname string   `json:"nickname"`           // 用户昵称
+        Remark   string   `json:"remark,optional"`    // 备注
+        DeptId   uint64   `json:"deptId,optional"`    // 部门ID
+        PostIds  []uint64 `json:"postIds,optional"`   // 岗位ID数组
+        Email    string   `json:"email,optional"`     // 邮箱
+        Mobile   string   `json:"mobile,optional"`    // 手机号
+        Sex      int32    `json:"sex,optional"`       // 性别
+        Avatar   string   `json:"avatar,optional"`    // 头像
+        Status   int32    `json:"status"`             // 状态
     }
 
     // UserResp - 对应 UserRespVO
@@ -250,9 +261,10 @@ type (
 @server(
     prefix: /admin-api/system/user
     group: user
-    jwt: Auth
-    middleware: AuthorityMiddleware
+	jwt: JwtAuth
+    // middleware: AuthorityMiddleware
 )
+
 service system {
     @doc "新增用户"
     @handler createUser
