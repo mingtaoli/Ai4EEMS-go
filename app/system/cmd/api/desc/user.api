@@ -25,6 +25,13 @@ type (
         Status   int32    `json:"status"`             // 状态
     }
 
+    UserCreateResp {
+        Id         uint64 `json:"id"`         // 新增用户编号
+        CreateTime int64  `json:"createTime"` // 创建时间戳
+    }
+)
+
+type (
     // UserUpdateReq - 修改用户
     UserUpdateReq {
         Id       uint64   `json:"id"`                 // 用户编号 (必填)
@@ -268,7 +275,7 @@ type (
 service system {
     @doc "新增用户"
     @handler createUser
-    post /create (UserCreateReq) returns (LongResp)
+    post /create (UserCreateReq) returns (UserCreateResp)
 
     // @doc "修改用户"
     // @handler updateUser
@@ -302,21 +309,21 @@ service system {
 
 // --- Group: Profile 个人中心接口 (需要 AuthMiddleware) ---
 // 路径前缀: /admin-api/system/user/profile
-@server(
-    prefix: /admin-api/system/user/profile
-    group: profile
-    middleware: AuthMiddleware 
-)
-service system {
-    @doc "获得登录用户信息"
-    @handler getUserProfile
-    get /get returns (UserProfileResp)
+// @server(
+//     prefix: /admin-api/system/user/profile
+//     group: profile
+//     middleware: AuthMiddleware 
+// )
+// service system {
+//     @doc "获得登录用户信息"
+//     @handler getUserProfile
+//     get /get returns (UserProfileResp)
 
-    @doc "修改用户个人信息"
-    @handler updateUserProfile
-    put /update (UserProfileUpdateReq) returns (EmptyResp)
+//     @doc "修改用户个人信息"
+//     @handler updateUserProfile
+//     put /update (UserProfileUpdateReq) returns (EmptyResp)
 
-    @doc "修改用户个人密码"
-    @handler updateUserProfilePassword
-    put /update-password (UserProfileUpdatePasswordReq) returns (EmptyResp)
-}
+//     @doc "修改用户个人密码"
+//     @handler updateUserProfilePassword
+//     put /update-password (UserProfileUpdatePasswordReq) returns (EmptyResp)
+// }

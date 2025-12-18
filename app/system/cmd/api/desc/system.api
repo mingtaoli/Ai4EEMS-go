@@ -1,11 +1,11 @@
 syntax = "v1"
 
-info(
-    title: "System Services - Admin API"
-    desc: "系统模块 - 用户管理、鉴权等核心功能"
-    author: "Mingtao Li"
-    email: "mingtao@xjtu.edu.cn"
-    version: "v1"
+info (
+	title:   "Ai4EEMS System Services - Admin API"
+	desc:    "系统模块 - 用户管理、鉴权等核心功能"
+	author:  "Mingtao Li"
+	email:   "mingtao@xjtu.edu.cn"
+	version: "v1"
 )
 
 import "user.api"
