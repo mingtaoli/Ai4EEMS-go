@@ -1,0 +1,33 @@
+
+type (
+
+	// 用户登录
+	LoginReq {
+		Account  string `json:"account"` //手机号或者用户名
+		Password string `json:"password"` //密码
+	}
+	LoginData {
+		AccessToken string `json:"token"`
+	}
+	LoginResp {
+		Code    string    `json:"code"`
+		Message string    `json:"message"`
+		Data    LoginData `json:"data"`
+	}
+)
+
+@server (
+    prefix: /admin-api/system/auth
+	group: auth
+	tags:  "认证管理"
+)
+
+service auth-api {
+    @doc "用户登录"
+    @handler UserLogin
+    post /login (LoginReq) returns (LoginResp)
+    
+    @doc "用户注册"
+    @handler register
+    post /register (AuthRegisterReqVO) returns (AuthLoginRespVO)
+}

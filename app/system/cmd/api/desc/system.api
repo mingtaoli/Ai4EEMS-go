@@ -8,4 +8,10 @@ info (
 	version: "v1"
 )
 
+type BaseResp {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
+import "auth.api"
 import "user.api"

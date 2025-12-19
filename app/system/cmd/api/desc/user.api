@@ -10,6 +10,9 @@ info(
 
 type (
 
+
+
+
     // UserCreateReq - 新增用户
     UserCreateReq {
         Username string   `json:"username"`           // 用户账号
