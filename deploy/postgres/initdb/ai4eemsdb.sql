@@ -1,85 +1,111 @@
 -- ----------------------------
--- Table structure for system_users
+-- 1. 序列定义
+-- ----------------------------
+DROP SEQUENCE IF EXISTS system_users_id_seq;
+CREATE SEQUENCE system_users_id_seq START 1000;
+
+-- ----------------------------
+-- 2. 表结构定义
 -- ----------------------------
 DROP TABLE IF EXISTS system_users;
 CREATE TABLE system_users
 (
-    id          int8         NOT NULL,
-    username    varchar(30)  NOT NULL,
-    password    varchar(100) NOT NULL DEFAULT '',
-    nickname    varchar(30)  NOT NULL,
-    remark      varchar(500) NULL     DEFAULT NULL,
-    dept_id     int8         NULL     DEFAULT NULL,
-    post_ids    varchar(255) NULL     DEFAULT NULL,
-    email       varchar(50)  NULL     DEFAULT '',
-    mobile      varchar(11)  NULL     DEFAULT '',
-    sex         int2         NULL     DEFAULT 0,
-    avatar      varchar(512) NULL     DEFAULT '',
-    status      int2         NOT NULL DEFAULT 0,
-    login_ip    varchar(50)  NULL     DEFAULT '',
-    login_date  timestamp    NULL     DEFAULT NULL,
-    creator     varchar(64)  NULL     DEFAULT '',
-    create_time timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updater     varchar(64)  NULL     DEFAULT '',
-    update_time timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deleted     int2         NOT NULL DEFAULT 0,
-    tenant_id   int8         NOT NULL DEFAULT 0
+    -- ID 与 账号
+    id              int8         NOT NULL DEFAULT nextval('system_users_id_seq'),
+    username        varchar(50)  NOT NULL,
+    password        varchar(100) NOT NULL DEFAULT '', -- BCrypt 加密串
+    nickname        varchar(50)  NOT NULL,
+    
+    -- 联系方式与基础资料
+    mobile          varchar(11)  DEFAULT '',
+    email           varchar(50)  DEFAULT '',
+    avatar          varchar(512) DEFAULT '',
+    sex             int2         DEFAULT 0, -- 0未知 1男 2女
+
+    -- 组织架构
+    dept_id         int8         DEFAULT NULL,
+    post_ids        varchar(255) DEFAULT NULL,
+
+    -- 核心状态字段
+    status          int2         NOT NULL DEFAULT 0, -- 账号状态：0正常 1停用
+    deleted         int2         NOT NULL DEFAULT 0, -- 逻辑删除：0存在 1删除
+
+    -- 登录与审计
+    login_ip        varchar(50)  DEFAULT '',
+    login_date      timestamp    DEFAULT NULL,
+    login_browser   varchar(100) NOT NULL DEFAULT '',
+    login_os        varchar(100) NOT NULL DEFAULT '',
+
+    -- 运维审计
+    remark          varchar(500) DEFAULT NULL,
+    creator         varchar(64)  DEFAULT '',
+    create_time     timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updater         varchar(64)  DEFAULT '',
+    update_time     timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    -- 约束
+    CONSTRAINT pk_system_users PRIMARY KEY (id),
+    CONSTRAINT uk_system_users_username UNIQUE (username),
+    CONSTRAINT uk_system_users_mobile UNIQUE (mobile)
 );
 
-ALTER TABLE system_users
-    ADD CONSTRAINT pk_system_users PRIMARY KEY (id);
-
-COMMENT ON COLUMN system_users.id IS '用户ID';
-COMMENT ON COLUMN system_users.username IS '用户账号';
-COMMENT ON COLUMN system_users.password IS '密码';
-COMMENT ON COLUMN system_users.nickname IS '用户昵称';
-COMMENT ON COLUMN system_users.remark IS '备注';
-COMMENT ON COLUMN system_users.dept_id IS '部门ID';
-COMMENT ON COLUMN system_users.post_ids IS '岗位编号数组';
-COMMENT ON COLUMN system_users.email IS '用户邮箱';
-COMMENT ON COLUMN system_users.mobile IS '手机号码';
-COMMENT ON COLUMN system_users.sex IS '用户性别';
-COMMENT ON COLUMN system_users.avatar IS '头像地址';
-COMMENT ON COLUMN system_users.status IS '帐号状态（0正常 1停用）';
-COMMENT ON COLUMN system_users.login_ip IS '最后登录IP';
-COMMENT ON COLUMN system_users.login_date IS '最后登录时间';
-COMMENT ON COLUMN system_users.creator IS '创建者';
-COMMENT ON COLUMN system_users.create_time IS '创建时间';
-COMMENT ON COLUMN system_users.updater IS '更新者';
-COMMENT ON COLUMN system_users.update_time IS '更新时间';
-COMMENT ON COLUMN system_users.deleted IS '是否删除';
-COMMENT ON COLUMN system_users.tenant_id IS '租户编号';
-COMMENT ON TABLE system_users IS '用户信息表';
+-- ----------------------------
+-- 3. 完整注释
+-- ----------------------------
+COMMENT ON TABLE  system_users                IS '用户信息表';
+COMMENT ON COLUMN system_users.id             IS '用户ID';
+COMMENT ON COLUMN system_users.username       IS '用户账号';
+COMMENT ON COLUMN system_users.password       IS '加密密码(BCrypt)';
+COMMENT ON COLUMN system_users.nickname       IS '用户昵称';
+COMMENT ON COLUMN system_users.mobile         IS '手机号码';
+COMMENT ON COLUMN system_users.email          IS '用户邮箱';
+COMMENT ON COLUMN system_users.avatar         IS '头像地址';
+COMMENT ON COLUMN system_users.sex            IS '用户性别(0未知 1男 2女)';
+COMMENT ON COLUMN system_users.dept_id        IS '部门ID';
+COMMENT ON COLUMN system_users.post_ids       IS '岗位编号数组';
+COMMENT ON COLUMN system_users.status         IS '帐号状态(0正常 1停用)';
+COMMENT ON COLUMN system_users.deleted        IS '逻辑删除(0存在 1删除)';
+COMMENT ON COLUMN system_users.login_ip       IS '最后登录IP';
+COMMENT ON COLUMN system_users.login_date     IS '最后登录时间';
+COMMENT ON COLUMN system_users.login_browser  IS '最后登录浏览器类型';
+COMMENT ON COLUMN system_users.login_os       IS '最后登录操作系统';
+COMMENT ON COLUMN system_users.remark         IS '备注';
+COMMENT ON COLUMN system_users.creator        IS '创建者';
+COMMENT ON COLUMN system_users.create_time    IS '创建时间';
+COMMENT ON COLUMN system_users.updater        IS '更新者';
+COMMENT ON COLUMN system_users.update_time    IS '更新时间';
 
 -- ----------------------------
--- Records of system_users
+-- 4. 常用索引
 -- ----------------------------
--- @formatter:off
+CREATE INDEX idx_system_users_dept ON system_users (dept_id);
+
+
 BEGIN;
-INSERT INTO system_users (id, username, password, nickname, remark, dept_id, post_ids, email, mobile, sex, avatar, status, login_ip, login_date, creator, create_time, updater, update_time, deleted, tenant_id) VALUES (1, 'admin', '$2a$04$KljJDa/LK7QfDm0lF5OhuePhlPfjRH3tB2Wu351Uidz.oQGJXevPi', '芋道源码', '管理员', 103, '[1,2]', '11aoteman@126.com', '18818260277', 2, 'http://test.yudao.iocoder.cn/test/20250502/avatar_1746154660449.png', 0, '0:0:0:0:0:0:0:1', '2025-05-10 18:03:15', 'admin', '2021-01-05 17:03:47', NULL, '2025-05-10 18:03:15', '0', 1);
-INSERT INTO system_users (id, username, password, nickname, remark, dept_id, post_ids, email, mobile, sex, avatar, status, login_ip, login_date, creator, create_time, updater, update_time, deleted, tenant_id) VALUES (100, 'yudao', '$2a$04$h.aaPKgO.odHepnk5PCsWeEwKdojFWdTItxGKfx1r0e1CSeBzsTJ6', '芋道', '不要吓我', 104, '[1]', 'yudao@iocoder.cn', '15601691300', 1, NULL, 0, '0:0:0:0:0:0:0:1', '2025-04-08 09:36:40', '', '2021-01-07 09:07:17', NULL, '2025-04-21 14:23:08', '0', 1);
-INSERT INTO system_users (id, username, password, nickname, remark, dept_id, post_ids, email, mobile, sex, avatar, status, login_ip, login_date, creator, create_time, updater, update_time, deleted, tenant_id) VALUES (103, 'yuanma', '$2a$04$fUBSmjKCPYAUmnMzOb6qE.eZCGPhHi1JmAKclODbfS/O7fHOl2bH6', '源码', NULL, 106, NULL, 'yuanma@iocoder.cn', '15601701300', 0, NULL, 0, '0:0:0:0:0:0:0:1', '2024-08-11 17:48:12', '', '2021-01-13 23:50:35', NULL, '2025-04-21 14:23:08', '0', 1);
-INSERT INTO system_users (id, username, password, nickname, remark, dept_id, post_ids, email, mobile, sex, avatar, status, login_ip, login_date, creator, create_time, updater, update_time, deleted, tenant_id) VALUES (104, 'test', '$2a$04$BrwaYn303hjA/6TnXqdGoOLhyHOAA0bVrAFu6.1dJKycqKUnIoRz2', '测试号', NULL, 107, '[1,2]', '111@qq.com', '15601691200', 1, NULL, 0, '0:0:0:0:0:0:0:1', '2025-03-28 20:01:16', '', '2021-01-21 02:13:53', NULL, '2025-04-21 14:23:08', '0', 1);
-INSERT INTO system_users (id, username, password, nickname, remark, dept_id, post_ids, email, mobile, sex, avatar, status, login_ip, login_date, creator, create_time, updater, update_time, deleted, tenant_id) VALUES (107, 'admin107', '$2a$10$dYOOBKMO93v/.ReCqzyFg.o67Tqk.bbc2bhrpyBGkIw9aypCtr2pm', '芋艿', NULL, NULL, NULL, '', '15601691300', 0, NULL, 0, '', NULL, '1', '2022-02-20 22:59:33', '1', '2025-04-21 14:23:08', '0', 118);
-INSERT INTO system_users (id, username, password, nickname, remark, dept_id, post_ids, email, mobile, sex, avatar, status, login_ip, login_date, creator, create_time, updater, update_time, deleted, tenant_id) VALUES (108, 'admin108', '$2a$10$y6mfvKoNYL1GXWak8nYwVOH.kCWqjactkzdoIDgiKl93WN3Ejg.Lu', '芋艿', NULL, NULL, NULL, '', '15601691300', 0, NULL, 0, '', NULL, '1', '2022-02-20 23:00:50', '1', '2025-04-21 14:23:08', '0', 119);
-INSERT INTO system_users (id, username, password, nickname, remark, dept_id, post_ids, email, mobile, sex, avatar, status, login_ip, login_date, creator, create_time, updater, update_time, deleted, tenant_id) VALUES (109, 'admin109', '$2a$10$JAqvH0tEc0I7dfDVBI7zyuB4E3j.uH6daIjV53.vUS6PknFkDJkuK', '芋艿', NULL, NULL, NULL, '', '15601691300', 0, NULL, 0, '', NULL, '1', '2022-02-20 23:11:50', '1', '2025-04-21 14:23:08', '0', 120);
-INSERT INTO system_users (id, username, password, nickname, remark, dept_id, post_ids, email, mobile, sex, avatar, status, login_ip, login_date, creator, create_time, updater, update_time, deleted, tenant_id) VALUES (110, 'admin110', '$2a$10$mRMIYLDtRHlf6.9ipiqH1.Z.bh/R9dO9d5iHiGYPigi6r5KOoR2Wm', '小王', NULL, NULL, NULL, '', '15601691300', 0, NULL, 0, '0:0:0:0:0:0:0:1', '2024-07-20 22:23:17', '1', '2022-02-22 00:56:14', NULL, '2025-04-21 14:23:08', '0', 121);
-INSERT INTO system_users (id, username, password, nickname, remark, dept_id, post_ids, email, mobile, sex, avatar, status, login_ip, login_date, creator, create_time, updater, update_time, deleted, tenant_id) VALUES (111, 'test', '$2a$10$mRMIYLDtRHlf6.9ipiqH1.Z.bh/R9dO9d5iHiGYPigi6r5KOoR2Wm', '测试用户', NULL, NULL, '[]', '', '', 0, NULL, 0, '0:0:0:0:0:0:0:1', '2023-12-30 11:42:17', '110', '2022-02-23 13:14:33', NULL, '2025-04-21 14:23:08', '0', 121);
-INSERT INTO system_users (id, username, password, nickname, remark, dept_id, post_ids, email, mobile, sex, avatar, status, login_ip, login_date, creator, create_time, updater, update_time, deleted, tenant_id) VALUES (112, 'newobject', '$2a$04$dB0z8Q819fJWz0hbaLe6B.VfHCjYgWx6LFfET5lyz3JwcqlyCkQ4C', '新对象', NULL, 100, '[]', '', '15601691235', 1, NULL, 0, '0:0:0:0:0:0:0:1', '2024-03-16 23:11:38', '1', '2022-02-23 19:08:03', NULL, '2025-04-21 14:23:08', '0', 1);
-INSERT INTO system_users (id, username, password, nickname, remark, dept_id, post_ids, email, mobile, sex, avatar, status, login_ip, login_date, creator, create_time, updater, update_time, deleted, tenant_id) VALUES (113, 'aoteman', '$2a$10$0acJOIk2D25/oC87nyclE..0lzeu9DtQ/n3geP4fkun/zIVRhHJIO', '芋道1', NULL, NULL, NULL, '', '15601691300', 0, NULL, 0, '127.0.0.1', '2022-03-19 18:38:51', '1', '2022-03-07 21:37:58', '1', '2025-05-05 15:30:53', '0', 122);
-INSERT INTO system_users (id, username, password, nickname, remark, dept_id, post_ids, email, mobile, sex, avatar, status, login_ip, login_date, creator, create_time, updater, update_time, deleted, tenant_id) VALUES (114, 'hrmgr', '$2a$10$TR4eybBioGRhBmDBWkqWLO6NIh3mzYa8KBKDDB5woiGYFVlRAi.fu', 'hr 小姐姐', NULL, NULL, '[5]', '', '15601691236', 1, NULL, 0, '0:0:0:0:0:0:0:1', '2024-03-24 22:21:05', '1', '2022-03-19 21:50:58', NULL, '2025-04-21 14:23:08', '0', 1);
-INSERT INTO system_users (id, username, password, nickname, remark, dept_id, post_ids, email, mobile, sex, avatar, status, login_ip, login_date, creator, create_time, updater, update_time, deleted, tenant_id) VALUES (115, 'aotemane', '$2a$04$GcyP0Vyzb2F2Yni5PuIK9ueGxM0tkZGMtDwVRwrNbtMvorzbpNsV2', '阿呆', '11222', 102, '[1,2]', '7648@qq.com', '15601691229', 2, NULL, 0, '', NULL, '1', '2022-04-30 02:55:43', '1', '2025-04-21 14:23:08', '0', 1);
-INSERT INTO system_users (id, username, password, nickname, remark, dept_id, post_ids, email, mobile, sex, avatar, status, login_ip, login_date, creator, create_time, updater, update_time, deleted, tenant_id) VALUES (117, 'admin123', '$2a$04$sEtimsHu9YCkYY4/oqElHem2Ijc9ld20eYO6lN.g/21NfLUTDLB9W', '测试号02', '1111', 100, '[2]', '', '15601691234', 1, NULL, 0, '0:0:0:0:0:0:0:1', '2024-10-02 10:16:20', '1', '2022-07-09 17:40:26', NULL, '2025-04-21 14:23:08', '0', 1);
-INSERT INTO system_users (id, username, password, nickname, remark, dept_id, post_ids, email, mobile, sex, avatar, status, login_ip, login_date, creator, create_time, updater, update_time, deleted, tenant_id) VALUES (118, 'goudan', '$2a$04$jth0yOj8cSJq84D6vrzusOHDwW/LpBfgBnQ6bfFlD8zNZfM632Ta2', '狗蛋', NULL, 103, '[1]', '', '15601691239', 1, NULL, 0, '0:0:0:0:0:0:0:1', '2024-03-17 09:10:27', '1', '2022-07-09 17:44:43', '1', '2025-04-21 14:23:08', '0', 1);
-INSERT INTO system_users (id, username, password, nickname, remark, dept_id, post_ids, email, mobile, sex, avatar, status, login_ip, login_date, creator, create_time, updater, update_time, deleted, tenant_id) VALUES (131, 'hh', '$2a$04$jyH9h6.gaw8mpOjPfHIpx.8as2Rzfcmdlj5rlJFwgCw4rsv/MTb2K', '呵呵', NULL, 100, '[]', '777@qq.com', '15601882312', 1, NULL, 0, '', NULL, '1', '2024-04-27 08:45:56', '1', '2025-04-21 14:23:08', '0', 1);
-INSERT INTO system_users (id, username, password, nickname, remark, dept_id, post_ids, email, mobile, sex, avatar, status, login_ip, login_date, creator, create_time, updater, update_time, deleted, tenant_id) VALUES (139, 'wwbwwb', '$2a$04$aOHoFbQU6zfBk/1Z9raF/ugTdhjNdx7culC1HhO0zvoczAnahCiMq', '小秃头', NULL, NULL, NULL, '', '', 0, NULL, 0, '0:0:0:0:0:0:0:1', '2024-09-10 21:03:58', NULL, '2024-09-10 21:03:58', NULL, '2025-04-21 14:23:08', '0', 1);
-INSERT INTO system_users (id, username, password, nickname, remark, dept_id, post_ids, email, mobile, sex, avatar, status, login_ip, login_date, creator, create_time, updater, update_time, deleted, tenant_id) VALUES (141, 'admin1', '$2a$04$oj6F6d7HrZ70kYVD3TNzEu.m3TPUzajOVuC66zdKna8KRerK1FmVa', '新用户', NULL, NULL, NULL, '', '', 0, '', 0, '0:0:0:0:0:0:0:1', '2025-04-08 13:09:07', '1', '2025-04-08 13:09:07', '1', '2025-04-08 13:09:07', '0', 1);
-COMMIT;
--- @formatter:on
 
-DROP SEQUENCE IF EXISTS system_users_seq;
-CREATE SEQUENCE system_users_seq
-    START 142;
+-- 插入一批具有代表性的测试数据
+INSERT INTO system_users 
+    (username, password, nickname, remark, dept_id, post_ids, email, mobile, sex, avatar, status, login_ip, login_date, login_browser, login_os, creator, deleted) 
+VALUES 
+    -- 1. 超级管理员 (密码: 123456)
+    ('admin', '$2a$10$8K1p/a06vI/T9pPjG.C9Y.p8m2Y.I6C8m2Y.I6C8m2Y.I6C8m2Y.I', '超级管理员', '系统最高权限', 1, '[1]', 'admin@yourdomain.com', '18812345678', 1, 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin', 0, '127.0.0.1', CURRENT_TIMESTAMP, 'Chrome 120', 'Windows 11', 'system', 0),
+    
+    -- 2. 开发人员 (密码: 123456)
+    ('dev_user', '$2a$10$8K1p/a06vI/T9pPjG.C9Y.p8m2Y.I6C8m2Y.I6C8m2Y.I6C8m2Y.I', '研发小王', '负责后端开发', 2, '[2,3]', 'wang@example.com', '13800138000', 1, 'https://api.dicebear.com/7.x/avataaars/svg?seed=wang', 0, '192.168.1.50', CURRENT_TIMESTAMP, 'Firefox 118', 'macOS', 'admin', 0),
+    
+    -- 3. 测试人员 (密码: 123456)
+    ('test_user', '$2a$10$8K1p/a06vI/T9pPjG.C9Y.p8m2Y.I6C8m2Y.I6C8m2Y.I6C8m2Y.I', '测试小李', '负责功能测试', 3, '[4]', 'li@example.com', '13911112222', 2, 'https://api.dicebear.com/7.x/avataaars/svg?seed=li', 0, '192.168.1.51', CURRENT_TIMESTAMP, 'Edge 121', 'Windows 10', 'admin', 0),
+    
+    -- 4. 实习生 (已停用账号, 密码: 123456)
+    ('intern_01', '$2a$10$8K1p/a06vI/T9pPjG.C9Y.p8m2Y.I6C8m2Y.I6C8m2Y.I6C8m2Y.I', '实习生01', '离职封存', 4, '[]', 'intern@example.com', '13566667777', 0, '', 1, '10.0.0.5', '2025-11-01 10:00:00', 'Chrome 110', 'Ubuntu', 'admin', 0),
+    
+    -- 5. 待删除数据测试 (逻辑删除为 1)
+    ('trash_user', '$2a$10$8K1p/a06vI/T9pPjG.C9Y.p8m2Y.I6C8m2Y.I6C8m2Y.I6C8m2Y.I', '误删账号', '测试回收站', 1, '[]', 'trash@example.com', '13333333333', 1, '', 0, '', NULL, '', '', 'admin', 1);
+
+COMMIT;
+
+-- 插入完手动指定 id 的数据或不带 id 的数据后，建议同步一次序列
+SELECT setval('system_users_id_seq', (SELECT MAX(id) FROM system_users));
 
 -- ----------------------------
 -- Table structure for system_dept
