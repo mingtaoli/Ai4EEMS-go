@@ -63,6 +63,8 @@ services:
       - ./web2.conf:/etc/nginx/nginx.conf
     ports:
       - "9802:80"
+    deploy:
+      replicas: 3 #启动多个副本，可以负载均衡
 
   postgres:
     image: postgres:16-alpine
